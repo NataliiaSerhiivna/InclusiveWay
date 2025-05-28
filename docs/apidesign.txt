@@ -1,0 +1,24 @@
+# API requests to connect backend with frontend
+
+PATH: /locations 
+GET get the list of filtered locations
+POST add a new location
+ 
+
+PATH: /locations/{location id}
+GET full information about the location
+PATCH change location's property
+DELETE delete the location
+
+PATH: /locations/{location id}/review
+POST send a review of a location by a particular user
+
+PATH: /mylocations/{user id}
+GET get the list of users locations
+
+PATH: /signin
+POST add new user
+
+PATH: /login
+GET get the user
+
