@@ -1,2 +1,14 @@
 # InclusiveWay
 Розробка платформи для побудови інклюзивних маршрутів та каталогізації безбар’єрних локацій.
+
+Поточна інструкція налаштування середовища проекту.
+GIT clone: git clone https://github.com/NataliiaSerhiivna/InclusiveWay.git
+
+Backend Setup
+    Backend Runtime: node.js version >= 20.12.0
+    Packet manager: npm
+    Environment variables
+        PORT=8080
+    Dependencies installation 
+       1. npm init
+       2. npm install
