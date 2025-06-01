@@ -1,16 +1,17 @@
 import express from "express";
-
+import {
+  createLocation,
+  getLocation,
+} from "../controllers/locationController.js";
 const router = express.Router();
 
 router.get("/", (req, res) => {
   res.status(200).send("ok");
 });
 
-router.post("/", (req, res) => {
-  res.status(200).send("ok");
-});
+router.post("/", createLocation);
 
-router.get("/:id", (req, res) => {});
+router.get("/:id", getLocation);
 
 router.patch("/:id", (req, res) => {});
 

@@ -8,8 +8,8 @@ const app = express();
 
 app.use(express.json());
 app.use("/locations", locationsRouter);
-app.use("signup", signupRouter);
-app.use("login", loginRouter);
+app.use("/signup", signupRouter);
+app.use("/login", loginRouter);
 
 const PORT = process.env.PORT || 8080;
 
