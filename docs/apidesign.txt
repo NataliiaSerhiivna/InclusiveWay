@@ -5,20 +5,30 @@ GET get the list of filtered locations
 POST add a new location
  
 
-PATH: /locations/{location id}
+PATH: /locations/{id}
 GET full information about the location
 PATCH change location's property
 DELETE delete the location
 
-PATH: /locations/{location id}/review
+PATH: /locations/{id}/features
+
+
+PATH: /locations/{id}/photos
+POST add a new photo to a location
+
+PATH: /photos/{id}
+PATCH edit the photo
+DELETE delete the photo
+
+PATH: /locations/{id}/review
 POST send a review of a location by a particular user
 
 PATH: /mylocations/{user id}
 GET get the list of users locations
 
-PATH: /signin
+PATH: /signup
 POST add new user
 
 PATH: /login
-GET get the user
+POST get the user
 

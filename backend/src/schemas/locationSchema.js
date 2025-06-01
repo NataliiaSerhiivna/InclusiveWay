@@ -1,0 +1,36 @@
+import { z } from "zod";
+
+const locationPhotoCreateSchema = z.object({
+  imageURL: z.string(),
+  description: z.string().min(10),
+  uploadedAt: z
+    .string()
+    .refine((val) => !isNaN(Date.parse(val)))
+    .transform((val) => new Date(val)),
+});
+
+const lcoationPhotoFullSchema = locationPhotoCreateSchema.extend({
+  id: z.number(),
+  locationId: z.number(),
+});
+
+export const locationCreateSchema = z.object({
+  name: z.string().min(1),
+  address: z.string().min(1),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  description: z.string().min(10),
+  createdBy: z.number().min(1),
+  approved: z.boolean(),
+  authenticated: z.boolean(),
+  createdAt: z
+    .string()
+    .refine((val) => !isNaN(Date.parse(val)))
+    .transform((val) => new Date(val)),
+  features: z.array(z.number()).min(1),
+  photos: z.array(locationPhotoCreateSchema).min(1),
+});
+
+export const locationFullSchema = locationCreateSchema.extend({
+  id: z.number(),
+});
