@@ -1,8 +1,8 @@
 import express from "express";
 import "dotenv/config";
-import locationsRouter from "./routes/locations.js";
-import signupRouter from "./routes/signup.js";
-import loginRouter from "./routes/login.js";
+import locationsRouter from "./routes/locationsRouter.js";
+import signupRouter from "./routes/signupRouter.js";
+import loginRouter from "./routes/loginRouter.js";
 
 const app = express();
 

@@ -10,25 +10,29 @@ GET full information about the location
 PATCH change location's property
 DELETE delete the location
 
-PATH: /locations/{id}/features
+PATH: /locations/{id}/update-features
+PATCH add or delete features of a locatioon
 
-
-PATH: /locations/{id}/photos
-POST add a new photo to a location
-
-PATH: /photos/{id}
-PATCH edit the photo
-DELETE delete the photo
-
-PATH: /locations/{id}/review
-POST send a review of a location by a particular user
-
-PATH: /mylocations/{user id}
-GET get the list of users locations
 
 PATH: /signup
 POST add new user
 
 PATH: /login
 POST get the user
+
+
+Admin panel
+PATH: /locations/{id}/update-photos
+PATCH add or delete photos of a location
+
+PATH: /unapproved-locations
+GET get the list of locations to be proved by the admin
+POST change approved property of selected locations to true
+
+PATH: /locations/{id}/complaints
+POST send a review of a location by a particular user
+
+
+
+
 
