@@ -21,7 +21,7 @@ router.patch("/:id", patchLocation);
 
 router.delete("/:id", deleteLocation);
 
-router.post("/:id/review", (req, res) => {
+router.post("/:id/comment", (req, res) => {
   const id = req.params.id;
   res.status(200).send(`review added to ${id}`);
 });

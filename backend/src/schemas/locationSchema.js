@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-import { locationPhotoCreateSchema } from "./locationPhotoSchema.js";
+import {
+  lcoationPhotoFullSchema,
+  locationPhotoCreateSchema,
+} from "./locationPhotoSchema.js";
+import { featureFullSchema } from "./featureSchema.js";
+import { commentFullSchema } from "./commentSchema.js";
 
 export const locationCreateSchema = z.object({
   name: z.string().min(1),
@@ -22,6 +27,9 @@ export const locationUpdateSchema = locationCreateSchema.partial();
 
 export const locationFullSchema = locationCreateSchema.extend({
   id: z.number(),
+  features: z.array(featureFullSchema),
+  photos: z.array(lcoationPhotoFullSchema),
+  comments: z.array(commentFullSchema).min(0),
 });
 
 export const bulkUpdateLocationFeaturesSchema = z.object({

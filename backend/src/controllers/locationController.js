@@ -7,6 +7,7 @@ import {
   locationFullSchema,
   locationUpdateSchema,
 } from "../schemas/locationSchema.js";
+import { lcoationPhotoFullSchema } from "../schemas/locationPhotoSchema.js";
 
 const locationModel = new LocationModel();
 const locationFeatureModel = new LocationFeatureModel();
@@ -24,25 +25,25 @@ export const createLocation = async (req, res) => {
       latitude: location.latitude,
       longitude: location.longitude,
       description: location.description,
-      createdBy: location.createdBy,
+      created_by: location.createdBy,
       approved: location.approved,
       verified: location.authenticated,
-      createdAt: location.createdAt,
+      created_at: location.createdAt,
     });
 
     location.features.forEach(async (feature) => {
       await locationFeatureModel.create({
-        locationId: createdLocation.id,
-        featureId: feature,
+        location_id: createdLocation.id,
+        feature_id: feature,
       });
     });
 
     location.photos.forEach(async (photo) => {
       await locationPhotoModel.create({
-        locationId: createdLocation.id,
-        imageURL: photo.imageURL,
+        location_id: createdLocation.id,
+        image_url: photo.imageURL,
         description: photo.description,
-        uploadedAt: photo.uploadedAt,
+        uploaded_at: photo.uploadedAt,
       });
     });
 
@@ -51,16 +52,65 @@ export const createLocation = async (req, res) => {
     if (error instanceof zod.ZodError) {
       res.status(400).send(error.issues);
     } else {
-      res.status(500).send(error.message);
+      res.status(501).send(error.message);
     }
   }
 };
 
 export const getLocation = async (req, res) => {
   try {
-    const location = await locationModel.getById(req.params.id);
-    const validatedLocation = locationFullSchema.parse(location);
-    res.status(201).send(validatedLocation);
+    const location = await locationModel.getById(Number(req.params.id));
+    const features = location.location_features.map((lf) => lf.feature);
+
+    const fullLocation = {
+      ...location,
+      features,
+    };
+
+    const response = {
+      id: fullLocation.id,
+      name: fullLocation.name,
+      address: fullLocation.address,
+      latitude: fullLocation.latitude.toNumber(),
+      longitude: fullLocation.longitude.toNumber(),
+      description: fullLocation.description,
+      createdBy: fullLocation.created_by,
+      approved: fullLocation.approved,
+      verified: fullLocation.verified,
+      createdAt: fullLocation.created_at.toISOString(),
+      features: fullLocation.features.map(
+        (lf) =>
+          (lf = {
+            id: lf.id,
+            name: lf.name,
+            description: ld.description,
+          })
+      ),
+      photos: fullLocation.location_photos.map(
+        (lf) =>
+          (lf = {
+            id: lf.id,
+            locationId: lf.location_id,
+            imageURL: lf.image_url,
+            description: lf.description,
+            uploadedAt: lf.uploaded_at.toISOString(),
+          })
+      ),
+      comments: fullLocation.comments.map(
+        (lc) =>
+          (lc = {
+            id: lc.id,
+            locationId: lc.location_id,
+            userId: lc.user_id,
+            content: lc.content,
+            createdAt: lc.created_at.toISOString(),
+          })
+      ),
+    };
+
+    const validatedResponse = locationFullSchema.parse(response);
+
+    res.status(202).send(validatedResponse);
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
     else res.status(500).send(error.meassage);

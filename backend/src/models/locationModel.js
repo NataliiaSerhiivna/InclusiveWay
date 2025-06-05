@@ -9,8 +9,20 @@ export default class LocationModel {
     });
     return newLocation;
   }
-  async getById(id) {
-    console.log("Gotten location " + id);
+  async getById(locationId) {
+    const location = await prisma.locations.findUnique({
+      where: { id: locationId },
+      include: {
+        location_photos: true,
+        comments: true,
+        location_features: {
+          include: {
+            feature: true, // This gets the actual feature details
+          },
+        },
+      },
+    });
+    return location;
   }
   async patch(id, fieldsToPatch) {}
   async delete(id) {}
