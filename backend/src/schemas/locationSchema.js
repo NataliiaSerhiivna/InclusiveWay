@@ -23,7 +23,17 @@ export const locationCreateSchema = z.object({
   features: z.array(z.number()).min(1),
   photos: z.array(locationPhotoCreateSchema).min(1),
 });
-export const locationUpdateSchema = locationCreateSchema.partial();
+export const locationUpdateSchema = z
+  .object({
+    name: z.string().min(1),
+    address: z.string().min(1),
+    latitude: z.number().min(-90).max(90),
+    longitude: z.number().min(-180).max(180),
+    description: z.string().min(10),
+    approved: z.boolean(),
+    verified: z.boolean(),
+  })
+  .partial();
 
 export const locationFullSchema = locationCreateSchema.extend({
   id: z.number(),

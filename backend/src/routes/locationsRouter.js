@@ -6,12 +6,11 @@ import {
   deleteLocation,
   updateLocationPhotos,
   updateLocationFeatures,
+  getLocations,
 } from "../controllers/locationController.js";
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.status(200).send("ok");
-});
+router.get("/", getLocations);
 
 router.post("/", createLocation);
 

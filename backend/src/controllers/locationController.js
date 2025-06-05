@@ -83,7 +83,7 @@ export const getLocation = async (req, res) => {
           (lf = {
             id: lf.id,
             name: lf.name,
-            description: ld.description,
+            description: lf.description,
           })
       ),
       photos: fullLocation.location_photos.map(
@@ -110,7 +110,7 @@ export const getLocation = async (req, res) => {
 
     const validatedResponse = locationFullSchema.parse(response);
 
-    res.status(202).send(validatedResponse);
+    res.status(200).send(validatedResponse);
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
     else res.status(500).send(error.meassage);
@@ -119,9 +119,12 @@ export const getLocation = async (req, res) => {
 
 export const patchLocation = async (req, res) => {
   try {
-    const locationPatches = locationUpdateSchema.parse(req.params.id, req.body);
-    await locationModel.patch(locationPatches);
-    res.status(204);
+    const locationPatches = locationUpdateSchema.parse(req.body);
+    const patchedLocation = await locationModel.patch(
+      Number(req.params.id),
+      locationPatches
+    );
+    res.status(200).send(patchedLocation);
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
     else res.status(500).send(error.meassage);
@@ -130,7 +133,8 @@ export const patchLocation = async (req, res) => {
 
 export const deleteLocation = async (req, res) => {
   try {
-    await locationModel.delete(req.params.id);
+    await locationModel.delete(Number(req.params.id));
+    res.status(200).send();
   } catch (error) {
     res.status(500).send(error.meassage);
   }
@@ -156,6 +160,8 @@ export const updateLocationFeatures = async (req, res) => {
 
 export const getLocations = async (req, res) => {
   try {
+    console.log(req.query);
+    res.status(200).send();
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
     else res.status(500).send(error.meassage);
