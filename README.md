@@ -14,11 +14,15 @@ git clone https://github.com/NataliiaSerhiivna/InclusiveWay.git
 **Backend Runtime:** node.js version >= 20.12.0  
 **Packet manager:** npm  
 **Environment variables**  
-PORT=8080  
+PORT=your_port  
+DATABASE_URL="postgresql://user:password@HOST:DBPORT/Name_of_bd"
 **Dependencies installation**  
-```bash   
+```bash
+cd backend   
 npm init
 npm install
+npx prisma generate
+npx prisma migrate dev
 ```
 
 ---
