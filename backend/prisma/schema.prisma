@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model comments {
+  id          Int        @id @default(autoincrement())
+  location_id Int
+  user_id     Int
+  content     String
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  locations   locations @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users       users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model features {
+  id                Int                 @id @default(autoincrement())
+  name              String              @db.VarChar
+  description       String?             @db.VarChar
+  location_features locations_features[]
+}
+
+model locations_features {
+  location_id Int
+  feature_id  Int
+  feature    features  @relation(fields: [feature_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  location   locations @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([location_id, feature_id])
+}
+
+model locations_photos {
+  id          Int        @id @default(autoincrement())
+  location_id Int
+  image_url   String
+  description String?
+  uploaded_at DateTime  @default(now()) @db.Timestamp(6)
+  location   locations @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model locations {
+  id                Int                 @id @default(autoincrement())
+  name              String              @db.VarChar
+  address           String              @db.VarChar
+  latitude          Decimal             @db.Decimal(9, 6)
+  longitude         Decimal             @db.Decimal(9, 6)
+  description       String              @db.VarChar
+  created_by        Int
+  author            users               @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+
+  approved          Boolean            @default(false)
+  verified          Boolean             @default(false)
+  created_at        DateTime           @default(now()) @db.Timestamp(6)
+  
+  comments          comments[]
+  location_features locations_features[]
+  location_photos   locations_photos[]
+}
+
+
+model users {
+  id            Int         @id @default(autoincrement())
+  name          String      @db.VarChar
+  email         String      @unique @db.VarChar
+  password_hash String      @db.VarChar
+  role          user_role   @default(user)
+  comments      comments[]
+  locations     locations[]
+}
+
+enum user_role {
+  user
+  admin
+}
