@@ -10,7 +10,7 @@ GET full information about the location
 PATCH change location's property
 DELETE delete the location
 
-PATH: /locations/{id}/update-features
+PATH: /locations/{id}/features
 PATCH add or delete features of a locatioon
 
 
@@ -22,7 +22,7 @@ POST get the user
 
 
 Admin panel
-PATH: /locations/{id}/update-photos
+PATH: /locations/{id}/photos
 PATCH add or delete photos of a location
 
 PATH: /unapproved-locations

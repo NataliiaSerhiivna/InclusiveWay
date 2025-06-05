@@ -47,5 +47,37 @@ export default class LocationModel {
       },
     });
   }
-  async getAll() {}
+  async getLocations({ name = "", featureIds = [], page = 1, limit = 10 }) {
+    const skip = (page - 1) * limit;
+    const locations = await prisma.locations.findMany({
+      where: {
+        ...(name && {
+          name: {
+            contains: name,
+            mode: "insensitive",
+          },
+        }),
+        ...(featureIds.length > 0 && {
+          location_features: {
+            some: {
+              feature_id: { in: featureIds },
+            },
+          },
+        }),
+      },
+      include: {
+        location_features: {
+          include: {
+            feature: true,
+          },
+        },
+        location_photos: true,
+        comments: true,
+      },
+      skip,
+      take: limit,
+    });
+
+    return locations;
+  }
 }

@@ -11,7 +11,12 @@ export default class LocationPhotoModel {
   async getById(id) {
     console.log("Gotten a location photo " + id);
   }
-  async patch(id, fieldsToPatch) {}
-  async delete(id) {}
+  async delete(photoId) {
+    await prisma.locations_photos.delete({
+      where: {
+        id: photoId,
+      },
+    });
+  }
   async getAll() {}
 }

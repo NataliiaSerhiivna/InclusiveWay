@@ -4,9 +4,11 @@ import {
   getLocation,
   patchLocation,
   deleteLocation,
-  updateLocationPhotos,
+  addLocationPhoto,
   updateLocationFeatures,
   getLocations,
+  addLocationComment,
+  getLocationComments,
 } from "../controllers/locationController.js";
 const router = express.Router();
 
@@ -20,12 +22,11 @@ router.patch("/:id", patchLocation);
 
 router.delete("/:id", deleteLocation);
 
-router.post("/:id/comment", (req, res) => {
-  const id = req.params.id;
-  res.status(200).send(`review added to ${id}`);
-});
+router.post("/:id/comments", addLocationComment);
+router.get("/:id/comments", getLocationComments);
 
-router.post("/:id/update-photos", updateLocationPhotos);
-router.post("/:id/update-features", updateLocationFeatures);
+router.put("/:id/features", updateLocationFeatures);
+
+router.post("/:id/photos", addLocationPhoto);
 
 export default router;
