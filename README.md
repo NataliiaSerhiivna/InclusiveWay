@@ -15,11 +15,11 @@ git clone https://github.com/NataliiaSerhiivna/InclusiveWay.git
 **Packet manager:** npm  
 **Environment variables**  
 PORT=your_port  
-# Connection via Supabase connection pooler (pgbouncer)
-DATABASE_URL="postgresql://<username>:<password>@<host>:<pooler-port>/<database>?pgbouncer=true"
+Connection via Supabase connection pooler (pgbouncer)
+DATABASE_URL="postgresql://username:password@host:pooler-port/database?pgbouncer=true"
 
-# Direct connection to Supabase database (e.g. for migrations)
-DIRECT_URL="postgresql://<username>:<password>@<host>:<direct-port>/<database>"
+Direct connection to Supabase database (e.g. for migrations)
+DIRECT_URL="postgresql://username:password@host:direct-port/database?sslmode=require"
 
 JWT_SECRET=your_jwt_secret
 **Dependencies installation**  
