@@ -9,8 +9,13 @@ export default class UserModel {
     });
     return newUser;
   }
-  async getById(id) {
-    console.log("Gotten location " + id);
+  async read(userEmail) {
+    const user = await prisma.users.findUnique({
+      where: {
+        email: userEmail,
+      },
+    });
+    return user;
   }
   async patch(id, fieldsToPatch) {}
   async delete(id) {}
