@@ -28,7 +28,7 @@ export const createLocation = async (req, res) => {
   try {
     const location = locationCreateSchema.parse(req.body);
 
-    console.log(location);
+    console.log(req.userId);
 
     const createdLocation = await locationModel.create({
       name: location.name,
@@ -36,7 +36,7 @@ export const createLocation = async (req, res) => {
       latitude: location.latitude,
       longitude: location.longitude,
       description: location.description,
-      created_by: location.createdBy,
+      created_by: Number(req.userId),
       approved: location.approved,
       verified: location.authenticated,
       created_at: location.createdAt,
@@ -145,7 +145,7 @@ export const addLocationComment = async (req, res) => {
     const comment = commentCreateSchema.parse(req.body);
     const newComment = await locationCommentModel.create({
       location_id: Number(req.params.id),
-      user_id: 1,
+      user_id: Number(req.userid),
       content: comment.content,
       created_at: comment.createdAt,
     });
