@@ -6,6 +6,7 @@ import signupRouter from "./routes/signupRouter.js";
 import loginRouter from "./routes/loginRouter.js";
 import featureRouter from "./routes/featureRouter.js";
 import photosRouter from "./routes/photosRouter.js";
+import profileRouter from "./routes/profileRouter.js";
 const app = express();
 
 app.use(express.json());
@@ -16,6 +17,7 @@ app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
 app.use("/features", featureRouter);
 app.use("/photos", photosRouter);
+app.use("/profile", profileRouter);
 app.use(cookieParser());
 const PORT = process.env.PORT || 8080;
 
