@@ -9,6 +9,7 @@ import {
   getLocations,
   addLocationComment,
   getLocationComments,
+  analyzeRouteForAccessibility
 } from "../controllers/locationController.js";
 const router = express.Router();
 
@@ -29,4 +30,12 @@ router.put("/:id/features", updateLocationFeatures);
 
 router.post("/:id/photos", addLocationPhoto);
 
+router.post('/route/analyze', analyzeRouteForAccessibility);
+
 export default router;
+
+
+
+
+
+

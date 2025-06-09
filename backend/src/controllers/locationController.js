@@ -223,3 +223,85 @@ export const getLocations = async (req, res) => {
     else res.status(500).send(error.meassage);
   }
 };
+
+
+
+//Аналіз на доступність
+export async function analyzeRouteForAccessibility(req, res) {
+  try {
+    const { coordinates, filters } = req.body;
+    console.log("📦 Route coordinates:", coordinates);
+
+    if (!coordinates || !Array.isArray(coordinates) || coordinates.length === 0) {
+      return res.status(400).json({ message: 'Маршрут невалідний' });
+    }
+
+    const requiredFeatures = new Set(filters || []);
+    const routePoints = coordinates;
+
+    const approvedLocations = await locationModel.getApprovedLocations(); 
+    const warnings = [];
+    const THRESHOLD = 0.0003; 
+
+    const distance = (p1, p2) => {
+      const lat1 = parseFloat(p1.lat);
+      const lng1 = parseFloat(p1.lng);
+      const lat2 = parseFloat(p2.lat);
+      const lng2 = parseFloat(p2.lng);
+      return Math.sqrt((lat1 - lat2) ** 2 + (lng1 - lng2) ** 2);
+    };
+
+    approvedLocations.forEach((loc) => {
+      for (const point of routePoints) {
+        const dist = distance(
+          { lat: loc.latitude, lng: loc.longitude },
+          point
+        );
+
+        if (dist < THRESHOLD) {
+          const locFeatures = new Set(
+            (loc.location_features || []).map((lf) => lf.feature.name)
+          );
+
+          if (!loc.verified) {
+            warnings.push({
+              lat: parseFloat(loc.latitude),
+              lng: parseFloat(loc.longitude),
+              type: 'unverified',
+              message: `Локація "${loc.name}" не перевірена`
+            });
+            break;
+          }
+
+          if (locFeatures.size === 0) {
+            warnings.push({
+              lat: parseFloat(loc.latitude),
+              lng: parseFloat(loc.longitude),
+              type: 'missing_all_features',
+              message: `Локація "${loc.name}" не має жодних ознак доступності`
+            });
+          } else {
+            const missing = [...requiredFeatures].filter(f => !locFeatures.has(f));
+            if (missing.length > 0) {
+              warnings.push({
+                lat: parseFloat(loc.latitude),
+                lng: parseFloat(loc.longitude),
+                type: 'missing_features',
+                message: `Локація "${loc.name}" не має: ${missing.join(', ')}`
+              });
+            }
+          }
+
+          break;
+        }
+      }
+    });
+
+    return res.status(200).json({ warnings });
+
+  } catch (error) {
+    console.error('Route analysis error:', error.message);
+    console.error(error.stack);
+    return res.status(500).json({ message: 'Помилка аналізу маршруту', error: error.message });
+  }
+}
