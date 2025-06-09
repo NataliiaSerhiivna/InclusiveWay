@@ -1,5 +1,6 @@
 import {
   userCreateSchema,
+  userEditSchema,
   userLoginSchema,
   userReturnSchema,
 } from "../schemas/userSchema.js";
@@ -80,11 +81,28 @@ export const authenticateUser = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     const user = await userModel.read(req.userEmail);
-    console.log(user);
 
     const validatedUser = userReturnSchema.parse(user);
 
     res.status(200).send(validatedUser);
+    return;
+  } catch (error) {
+    if (error instanceof zod.ZodError) {
+      res.status(400).send(error.issues);
+    } else {
+      res.status(500).send(error.message);
+    }
+  }
+};
+
+export const editUser = async (req, res) => {
+  try {
+    const patches = userEditSchema.parse(req.body);
+    const patchedUser = userReturnSchema.parse(
+      await userModel.patch(req.userId, patches)
+    );
+
+    res.status(200).send(patchedUser);
     return;
   } catch (error) {
     if (error instanceof zod.ZodError) {

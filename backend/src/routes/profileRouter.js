@@ -1,5 +1,5 @@
 import exress from "express";
-import { getUser } from "../controllers/userController.js";
+import { editUser, getUser } from "../controllers/userController.js";
 import {
   authenticateUserToken,
   authenticateAdminToken,
@@ -7,5 +7,5 @@ import {
 const router = exress.Router();
 
 router.get("/", authenticateUserToken, getUser);
-
+router.patch("/", authenticateUserToken, editUser);
 export default router;
