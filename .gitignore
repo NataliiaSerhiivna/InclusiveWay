@@ -11,19 +11,10 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Editor settings
 .vscode/
-.idea/
-.DS_Store
-Thumbs.db
-
-# OS
 *.log
 
-# Prisma
 /prisma/dev.db
 /prisma/dev.db-journal
-
-# React / Vite
 frontend/node_modules/
 frontend/dist/
