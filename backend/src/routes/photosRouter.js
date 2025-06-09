@@ -3,7 +3,7 @@ import { deleteLocationPhoto } from "../controllers/photosController.js";
 const router = express.Router();
 
 import {
-  authenticateToken,
+  authenticateUserToken,
   authenticateAdminToken,
 } from "../unitilies/tokenAuthenticationMiddleware.js";
 

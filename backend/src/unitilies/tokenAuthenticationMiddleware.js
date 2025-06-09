@@ -2,7 +2,7 @@ import UserserModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 
 const userModel = new UserserModel();
-export const authenticateToken = async (req, res, next) => {
+export const authenticateUserToken = async (req, res, next) => {
   const token = req.cookies?.token;
 
   if (!token) res.status(401).send({ message: "No access token provided" });
@@ -12,6 +12,7 @@ export const authenticateToken = async (req, res, next) => {
     const user = await userModel.read(decoded.email);
     if (user.role === "user") {
       req.userId = decoded.id;
+      req.userEmail = decoded.email;
       next();
     } else {
       res.status(403).send({ mesage: "Invalid token" });

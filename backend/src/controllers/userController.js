@@ -1,4 +1,8 @@
-import { userCreateSchema, userLoginSchema } from "../schemas/userSchema.js";
+import {
+  userCreateSchema,
+  userLoginSchema,
+  userReturnSchema,
+} from "../schemas/userSchema.js";
 import UserModel from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -14,7 +18,7 @@ export const createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(user.password, 10);
 
     await userModel.create({
-      name: user.username,
+      username: user.username,
       email: user.email,
       password_hash: hashedPassword,
     });
@@ -32,9 +36,7 @@ export const createUser = async (req, res) => {
 export const authenticateUser = async (req, res) => {
   try {
     const userData = userLoginSchema.parse(req.body);
-
     const user = await userModel.read(userData.email);
-
     if (!user) {
       res.status(401).send({ mesage: "Invalid credentials" });
       return;
@@ -66,6 +68,24 @@ export const authenticateUser = async (req, res) => {
       res.status(401).send({ mesage: "Invalid credentials" });
       return;
     }
+  } catch (error) {
+    if (error instanceof zod.ZodError) {
+      res.status(400).send(error.issues);
+    } else {
+      res.status(500).send(error.message);
+    }
+  }
+};
+
+export const getUser = async (req, res) => {
+  try {
+    const user = await userModel.read(req.userEmail);
+    console.log(user);
+
+    const validatedUser = userReturnSchema.parse(user);
+
+    res.status(200).send(validatedUser);
+    return;
   } catch (error) {
     if (error instanceof zod.ZodError) {
       res.status(400).send(error.issues);
