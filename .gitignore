@@ -4,6 +4,8 @@ node_modules/
 dist/
 build/
 coverage/
+.gitignore
+.prettierignore
 
 # Logs
 npm-debug.log*
