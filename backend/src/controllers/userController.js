@@ -20,7 +20,7 @@ export const createUser = async (req, res) => {
     });
     console.log("User created");
 
-    res.status(204).send();
+    res.status(201).send();
   } catch (error) {
     if (error instanceof zod.ZodError) {
       res.status(400).send(error.issues);
@@ -35,7 +35,11 @@ export const authenticateUser = async (req, res) => {
 
     const user = await userModel.read(userData.email);
 
-    if (bcrypt.compare(userData.password, user.password_hash)) {
+    if (!user) {
+      res.status(401).send({ message: "Invalid credentials" });
+    }
+
+    if (await bcrypt.compare(userData.password, user.password_hash)) {
       const token = jwt.sign(
         {
           id: user.id,
@@ -56,6 +60,8 @@ export const authenticateUser = async (req, res) => {
       delete user.password_hash;
       delete user.role;
       res.status(200).send(user);
+    } else {
+      res.status(401).send({ message: "Invalid credentials" });
     }
   } catch (error) {
     if (error instanceof zod.ZodError) {
