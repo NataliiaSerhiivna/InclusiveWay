@@ -9,6 +9,7 @@ import {
   getLocations,
   addLocationComment,
   getLocationComments,
+  getPendingLocations,
   analyzeRouteForAccessibility,
 } from "../controllers/locationController.js";
 import {
@@ -19,6 +20,7 @@ import {
 const router = express.Router();
 
 router.get("/", getLocations);
+router.get("/pending", authenticateAdminToken, getPendingLocations);
 
 router.post("/", authenticateUserToken, createLocation);
 
