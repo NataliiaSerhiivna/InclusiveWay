@@ -11,24 +11,29 @@ import {
   getLocationComments,
   analyzeRouteForAccessibility
 } from "../controllers/locationController.js";
+import {
+  authenticateToken,
+  authenticateAdminToken,
+} from "../unitilies/tokenAuthenticationMiddleware.js";
+
 const router = express.Router();
 
 router.get("/", getLocations);
 
-router.post("/", createLocation);
+router.post("/", authenticateToken, createLocation);
 
 router.get("/:id", getLocation);
 
-router.patch("/:id", patchLocation);
+router.patch("/:id", authenticateAdminToken, patchLocation);
 
-router.delete("/:id", deleteLocation);
+router.delete("/:id", authenticateAdminToken, deleteLocation);
 
-router.post("/:id/comments", addLocationComment);
+router.post("/:id/comments", authenticateToken, addLocationComment);
 router.get("/:id/comments", getLocationComments);
 
-router.put("/:id/features", updateLocationFeatures);
+router.put("/:id/features", authenticateAdminToken, updateLocationFeatures);
 
-router.post("/:id/photos", addLocationPhoto);
+router.post("/:id/photos", authenticateAdminToken, addLocationPhoto);
 
 router.post('/route/analyze', analyzeRouteForAccessibility);
 
