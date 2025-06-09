@@ -230,7 +230,6 @@ export const getLocations = async (req, res) => {
 export async function analyzeRouteForAccessibility(req, res) {
   try {
     const { coordinates, filters } = req.body;
-    console.log("📦 Route coordinates:", coordinates);
 
     if (!coordinates || !Array.isArray(coordinates) || coordinates.length === 0) {
       return res.status(400).json({ message: 'Маршрут невалідний' });
