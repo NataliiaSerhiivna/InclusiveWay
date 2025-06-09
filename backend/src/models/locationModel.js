@@ -87,10 +87,10 @@ export default class LocationModel {
       include: {
         location_features: {
           include: {
-            feature: true
-          }
-        }
-      }
+            feature: true,
+          },
+        },
+      },
     });
     return result;
   }

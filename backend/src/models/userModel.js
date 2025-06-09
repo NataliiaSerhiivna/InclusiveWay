@@ -30,5 +30,20 @@ export default class UserModel {
     return patchedUser;
   }
   async delete(id) {}
-  async getAll() {}
+  async getAll({ name = "", page = 1, limit = 10 }) {
+    const skip = (page - 1) * limit;
+    const users = await prisma.users.findMany({
+      where: {
+        ...(name && {
+          name: {
+            contains: name,
+            mode: "insensitive",
+          },
+        }),
+      },
+      skip,
+      take: limit,
+    });
+    return users;
+  }
 }

@@ -18,6 +18,7 @@ import {
   commentCreateSchema,
   commentFullSchema,
 } from "../schemas/commentSchema.js";
+import locationsRetriever from "../unitilies/locationsRetriever.js";
 
 const locationModel = new LocationModel();
 const locationFeatureModel = new LocationFeatureModel();
@@ -187,37 +188,29 @@ export const getLocationComments = async (req, res) => {
 };
 export const getLocations = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const name = req.query.name || "";
-    const featureIds = req.query.features
-      ? req.query.features.split(",").map(Number)
-      : [];
-    const filters = {
-      name,
-      featureIds,
-      page,
-      limit,
-    };
-    const locations = await locationModel.getLocations(filters);
-
-    const response = {
-      locations: [],
-    };
-
-    locations.forEach((location) => {
-      const features = location.location_features.map((lf) => lf.feature);
-      const fullLocation = {
-        ...location,
-        features,
-      };
-      const validatedLocation = locationFullSchema.parse(
-        fromDbToJSON(fullLocation)
-      );
-      response.locations.push(validatedLocation);
-    });
+    const result = await locationsRetriever(req);
+    const response = result.locations.filter(
+      (lcoation) => lcoation.approved === true
+    );
+    console.log(response);
 
     res.status(200).send(response);
+    return;
+  } catch (error) {
+    if (error instanceof zod.ZodError) res.status(400).send(error.issues);
+    else res.status(500).send(error.meassage);
+  }
+};
+
+export const getPendingLocations = async (req, res) => {
+  try {
+    const result = await locationsRetriever(req);
+    const response = result.locations.filter(
+      (lcoation) => lcoation.approved === false
+    );
+
+    res.status(200).send(response);
+    return;
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
     else res.status(500).send(error.meassage);

@@ -112,3 +112,34 @@ export const editUser = async (req, res) => {
     }
   }
 };
+export const getUsers = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const name = req.query.name || "";
+    const filters = {
+      name,
+      page,
+      limit,
+    };
+    const users = await userModel.getAll(filters);
+
+    const response = {
+      users: [],
+    };
+
+    users.forEach((user) => {
+      response.users.push(userReturnSchema.parse(user));
+    });
+
+    res.status(200).send(response);
+
+    return;
+  } catch (error) {
+    if (error instanceof zod.ZodError) {
+      res.status(400).send(error.issues);
+    } else {
+      res.status(500).send(error.message);
+    }
+  }
+};

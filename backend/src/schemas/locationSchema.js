@@ -32,6 +32,7 @@ export const locationUpdateSchema = z
     approved: z.boolean(),
     verified: z.boolean(),
   })
+  .strict()
   .partial();
 
 export const locationFullSchema = locationCreateSchema.extend({
