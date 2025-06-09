@@ -80,4 +80,18 @@ export default class LocationModel {
 
     return locations;
   }
+
+  async getApprovedLocations() {
+    const result = await prisma.locations.findMany({
+      where: { approved: true },
+      include: {
+        location_features: {
+          include: {
+            feature: true
+          }
+        }
+      }
+    });
+    return result;
+  }
 }

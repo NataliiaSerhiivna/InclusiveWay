@@ -9,6 +9,7 @@ import {
   getLocations,
   addLocationComment,
   getLocationComments,
+  analyzeRouteForAccessibility
 } from "../controllers/locationController.js";
 import {
   authenticateToken,
@@ -34,4 +35,12 @@ router.put("/:id/features", authenticateAdminToken, updateLocationFeatures);
 
 router.post("/:id/photos", authenticateAdminToken, addLocationPhoto);
 
+router.post('/route/analyze', analyzeRouteForAccessibility);
+
 export default router;
+
+
+
+
+
+
