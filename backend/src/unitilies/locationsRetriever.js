@@ -6,12 +6,12 @@ const locationModel = new LocationModel();
 export default async function locationsRetriever(req) {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
-  const name = req.query.name || "";
+  const searchString = req.query.searchString || "";
   const featureIds = req.query.features
     ? req.query.features.split(",").map(Number)
     : [];
   const filters = {
-    name,
+    searchString,
     featureIds,
     page,
     limit,
