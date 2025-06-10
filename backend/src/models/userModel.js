@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-
+import { camelToSnakeCase } from "../unitilies/camelSnakeModifications.js";
 const prisma = new PrismaClient();
 
 export default class UserModel {
@@ -17,7 +17,33 @@ export default class UserModel {
     });
     return user;
   }
-  async patch(id, fieldsToPatch) {}
+  async patch(id, fieldsToPatch) {
+    fieldsToPatch = camelToSnakeCase(fieldsToPatch);
+    const patchedUser = await prisma.users.update({
+      where: {
+        id: id,
+      },
+      data: {
+        ...fieldsToPatch,
+      },
+    });
+    return patchedUser;
+  }
   async delete(id) {}
-  async getAll() {}
+  async getAll({ name = "", page = 1, limit = 10 }) {
+    const skip = (page - 1) * limit;
+    const users = await prisma.users.findMany({
+      where: {
+        ...(name && {
+          name: {
+            contains: name,
+            mode: "insensitive",
+          },
+        }),
+      },
+      skip,
+      take: limit,
+    });
+    return users;
+  }
 }

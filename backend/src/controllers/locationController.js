@@ -18,6 +18,7 @@ import {
   commentCreateSchema,
   commentFullSchema,
 } from "../schemas/commentSchema.js";
+import locationsRetriever from "../unitilies/locationsRetriever.js";
 
 const locationModel = new LocationModel();
 const locationFeatureModel = new LocationFeatureModel();
@@ -187,60 +188,54 @@ export const getLocationComments = async (req, res) => {
 };
 export const getLocations = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const name = req.query.name || "";
-    const featureIds = req.query.features
-      ? req.query.features.split(",").map(Number)
-      : [];
-    const filters = {
-      name,
-      featureIds,
-      page,
-      limit,
-    };
-    const locations = await locationModel.getLocations(filters);
-
-    const response = {
-      locations: [],
-    };
-
-    locations.forEach((location) => {
-      const features = location.location_features.map((lf) => lf.feature);
-      const fullLocation = {
-        ...location,
-        features,
-      };
-      const validatedLocation = locationFullSchema.parse(
-        fromDbToJSON(fullLocation)
-      );
-      response.locations.push(validatedLocation);
-    });
+    const result = await locationsRetriever(req);
+    const response = result.locations.filter(
+      (lcoation) => lcoation.approved === true
+    );
+    console.log(response);
 
     res.status(200).send(response);
+    return;
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
     else res.status(500).send(error.meassage);
   }
 };
 
+export const getPendingLocations = async (req, res) => {
+  try {
+    const result = await locationsRetriever(req);
+    const response = result.locations.filter(
+      (lcoation) => lcoation.approved === false
+    );
 
+    res.status(200).send(response);
+    return;
+  } catch (error) {
+    if (error instanceof zod.ZodError) res.status(400).send(error.issues);
+    else res.status(500).send(error.meassage);
+  }
+};
 
 //Аналіз на доступність
 export async function analyzeRouteForAccessibility(req, res) {
   try {
     const { coordinates, filters } = req.body;
 
-    if (!coordinates || !Array.isArray(coordinates) || coordinates.length === 0) {
-      return res.status(400).json({ message: 'Маршрут невалідний' });
+    if (
+      !coordinates ||
+      !Array.isArray(coordinates) ||
+      coordinates.length === 0
+    ) {
+      return res.status(400).json({ message: "Маршрут невалідний" });
     }
 
     const requiredFeatures = new Set(filters || []);
     const routePoints = coordinates;
 
-    const approvedLocations = await locationModel.getApprovedLocations(); 
+    const approvedLocations = await locationModel.getApprovedLocations();
     const warnings = [];
-    const THRESHOLD = 0.0003; 
+    const THRESHOLD = 0.0003;
 
     const distance = (p1, p2) => {
       const lat1 = parseFloat(p1.lat);
@@ -252,10 +247,7 @@ export async function analyzeRouteForAccessibility(req, res) {
 
     approvedLocations.forEach((loc) => {
       for (const point of routePoints) {
-        const dist = distance(
-          { lat: loc.latitude, lng: loc.longitude },
-          point
-        );
+        const dist = distance({ lat: loc.latitude, lng: loc.longitude }, point);
 
         if (dist < THRESHOLD) {
           const locFeatures = new Set(
@@ -266,8 +258,8 @@ export async function analyzeRouteForAccessibility(req, res) {
             warnings.push({
               lat: parseFloat(loc.latitude),
               lng: parseFloat(loc.longitude),
-              type: 'unverified',
-              message: `Локація "${loc.name}" не перевірена`
+              type: "unverified",
+              message: `Локація "${loc.name}" не перевірена`,
             });
             break;
           }
@@ -276,17 +268,19 @@ export async function analyzeRouteForAccessibility(req, res) {
             warnings.push({
               lat: parseFloat(loc.latitude),
               lng: parseFloat(loc.longitude),
-              type: 'missing_all_features',
-              message: `Локація "${loc.name}" не має жодних ознак доступності`
+              type: "missing_all_features",
+              message: `Локація "${loc.name}" не має жодних ознак доступності`,
             });
           } else {
-            const missing = [...requiredFeatures].filter(f => !locFeatures.has(f));
+            const missing = [...requiredFeatures].filter(
+              (f) => !locFeatures.has(f)
+            );
             if (missing.length > 0) {
               warnings.push({
                 lat: parseFloat(loc.latitude),
                 lng: parseFloat(loc.longitude),
-                type: 'missing_features',
-                message: `Локація "${loc.name}" не має: ${missing.join(', ')}`
+                type: "missing_features",
+                message: `Локація "${loc.name}" не має: ${missing.join(", ")}`,
               });
             }
           }
@@ -297,10 +291,11 @@ export async function analyzeRouteForAccessibility(req, res) {
     });
 
     return res.status(200).json({ warnings });
-
   } catch (error) {
-    console.error('Route analysis error:', error.message);
+    console.error("Route analysis error:", error.message);
     console.error(error.stack);
-    return res.status(500).json({ message: 'Помилка аналізу маршруту', error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Помилка аналізу маршруту", error: error.message });
   }
 }

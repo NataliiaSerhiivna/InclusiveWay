@@ -51,10 +51,10 @@ model locations {
   longitude         Decimal             @db.Decimal(9, 6)
   description       String              @db.VarChar
   created_by        Int
-  author            users               @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+  author            users               @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   approved          Boolean            @default(false)
-  verified          Boolean             @default(false)
+  verified          Boolean            @default(false)
   created_at        DateTime           @default(now()) @db.Timestamp(6)
   
   comments          comments[]
@@ -65,7 +65,7 @@ model locations {
 
 model users {
   id            Int         @id @default(autoincrement())
-  name          String      @db.VarChar
+  username      String      @db.VarChar
   email         String      @unique @db.VarChar
   password_hash String      @db.VarChar
   role          user_role   @default(user)
