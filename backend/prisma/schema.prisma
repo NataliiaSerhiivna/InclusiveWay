@@ -60,7 +60,7 @@ model locations {
   comments          comments[]
   location_features locations_features[]
   location_photos   locations_photos[]
-  edit_requsts edit_requests[]
+  location_edit_requsts location_edit_requests[]
 
 }
 
@@ -73,11 +73,11 @@ model users {
   role          user_role   @default(user)
   comments      comments[]
   locations     locations[]
-  edit_requsts edit_requests[]
+  location_edit_requsts location_edit_requests[]
 
 }
 
-model edit_requests{
+model location_edit_requests{
   id Int @id @default(autoincrement())
   location_id Int 
   location locations @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: Cascade)

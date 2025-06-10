@@ -13,7 +13,6 @@ import {
   lcoationPhotoFullSchema,
   locationPhotoCreateSchema,
 } from "../schemas/locationPhotoSchema.js";
-import { editRequestSchema } from "../schemas/editRequestSchema.js";
 import {
   commentCreateSchema,
   commentFullSchema,
@@ -93,20 +92,6 @@ export const getLocation = async (req, res) => {
 export const patchLocation = async (req, res) => {
   try {
     const locationPatches = locationUpdateSchema.parse(req.body);
-    const patchedLocation = await locationModel.patch(
-      Number(req.params.id),
-      locationPatches
-    );
-    res.status(200).send(patchedLocation);
-  } catch (error) {
-    if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
-  }
-};
-
-export const addLocationEditRequest = async (req, res) => {
-  try {
-    const editRequest = editRequestSchema.parse(req.body);
     const patchedLocation = await locationModel.patch(
       Number(req.params.id),
       locationPatches
