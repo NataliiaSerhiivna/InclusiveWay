@@ -26,6 +26,7 @@ export const createUser = async (req, res) => {
     console.log("User created");
 
     res.status(201).send();
+    return;
   } catch (error) {
     if (error instanceof zod.ZodError) {
       res.status(400).send(error.issues);
