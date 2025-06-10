@@ -1,0 +1,264 @@
+[33mcommit cb3dadb31134721823d08b27432b0a2bfcc86b1f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mbackend/creating_endpoints[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/backend/creating_endpoints[m[33m, [m[1;32mmain[m[33m)[m
+Merge: 560a601 683ea0b
+Author: GoldExperienceRQ <122152527+GoldExperienceRQ@users.noreply.github.com>
+Date:   Mon Jun 9 19:56:21 2025 +0200
+
+    Merge pull request #11 from NataliiaSerhiivna/backend/creating_endpoints
+    
+    Endpoints
+
+[33mcommit 683ea0beb2330f0549fcc015219559e9e4355c48[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Mon Jun 9 19:55:25 2025 +0200
+
+    Adjusted lcoation search by name and address
+
+[33mcommit 5ea5e655eba7a32b4d4c0275be23bcee5e7df8f0[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Mon Jun 9 19:36:03 2025 +0200
+
+    Adjusted location controller, added user router to get users
+
+[33mcommit 560a6012a1143a8d37f43d64df1328f19d2f4d77[m
+Merge: 517264b 9db3fb5
+Author: GoldExperienceRQ <122152527+GoldExperienceRQ@users.noreply.github.com>
+Date:   Mon Jun 9 17:18:28 2025 +0200
+
+    Merge pull request #10 from NataliiaSerhiivna/backend/creating_endpoints
+    
+    Added profile router
+
+[33mcommit 9db3fb5b644fa799cab8311eafd4f9559f195fca[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Mon Jun 9 15:52:14 2025 +0200
+
+    Added profile patch endpoint
+
+[33mcommit f1e9c3a00bc4265be2a7f03f029b6be0221f20ea[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Mon Jun 9 15:32:15 2025 +0200
+
+    Added profile endpoint
+
+[33mcommit 517264b61ca089a1dae3f4e01610e4970af72838[m
+Merge: dbdd225 9d3832e
+Author: GoldExperienceRQ <122152527+GoldExperienceRQ@users.noreply.github.com>
+Date:   Mon Jun 9 14:45:40 2025 +0200
+
+    Merge pull request #9 from NataliiaSerhiivna/backend/creating_endpoints
+    
+    Fixed some authorization issues
+
+[33mcommit 9d3832eb4b4eb3fcd6eb65f79218852d314a37f7[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Mon Jun 9 14:44:00 2025 +0200
+
+    Fixed authentication codes
+
+[33mcommit f56636d715ac693928ee490f2c9835e44f5e3568[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Mon Jun 9 14:09:35 2025 +0200
+
+    Chnaged gitignore
+
+[33mcommit dbdd225fc19df6140f13e09ba38bf4d94a12e2b3[m
+Author: NataliiaSerhiivna <108931943+NataliiaSerhiivna@users.noreply.github.com>
+Date:   Mon Jun 9 14:55:37 2025 +0300
+
+    Update .gitignore
+
+[33mcommit c62a1e960fccb3b6786acee5ec2c14f4eadbd938[m
+Merge: fd44eac 396df32
+Author: NataliiaSerhiivna <108931943+NataliiaSerhiivna@users.noreply.github.com>
+Date:   Mon Jun 9 13:03:48 2025 +0300
+
+    Merge pull request #8 from NataliiaSerhiivna/path-check
+    
+    Path check
+
+[33mcommit 396df3233e5de34840b64329e6e02dcbb18c5b71[m[33m ([m[1;31morigin/path-check[m[33m)[m
+Author: NataliyaSerhiivna <natalidoln213@gmail.com>
+Date:   Mon Jun 9 12:40:32 2025 +0300
+
+    checking the availability of the path
+
+[33mcommit 2b3aa958a7ae81acdc4237d096f731d5c324a6b1[m
+Merge: 45bccfb fd44eac
+Author: NataliyaSerhiivna <natalidoln213@gmail.com>
+Date:   Mon Jun 9 12:35:17 2025 +0300
+
+    Merge branch 'main' of https://github.com/NataliiaSerhiivna/InclusiveWay
+
+[33mcommit 45bccfb1af50586f501e4ffc7f148b039e0a4cd4[m
+Author: NataliyaSerhiivna <natalidoln213@gmail.com>
+Date:   Mon Jun 9 12:35:11 2025 +0300
+
+    перевірка доступності шляху
+
+[33mcommit fd44eac96bbb6efba7b93bd3c82b255865e91e28[m
+Merge: e00c671 6de8814
+Author: GoldExperienceRQ <122152527+GoldExperienceRQ@users.noreply.github.com>
+Date:   Sat Jun 7 01:02:35 2025 +0200
+
+    Merge pull request #7 from NataliiaSerhiivna/backend/authorization
+    
+    fixed readme
+
+[33mcommit 6de88147a1a6d89ef0a293e52e51c1d41a4fbd58[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Sat Jun 7 01:01:45 2025 +0200
+
+    fixed readme
+
+[33mcommit e00c671364f3fbc5b5e224f414367613d1a57ff0[m
+Merge: 6753b16 e6f5dfd
+Author: GoldExperienceRQ <122152527+GoldExperienceRQ@users.noreply.github.com>
+Date:   Sat Jun 7 00:58:53 2025 +0200
+
+    Merge pull request #6 from NataliiaSerhiivna/backend/authorization
+    
+    Authentication
+
+[33mcommit e6f5dfdb666e1a771672a451994fd372bae9d361[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Sat Jun 7 00:57:15 2025 +0200
+
+    Added routes authentication, changed readme to properly start the project.
+
+[33mcommit 6753b16f9c56c0516fc23cf57d1c1ba17e6eae2d[m
+Merge: a3509f1 d86ba6b
+Author: GoldExperienceRQ <122152527+GoldExperienceRQ@users.noreply.github.com>
+Date:   Fri Jun 6 13:43:00 2025 +0200
+
+    Merge pull request #5 from NataliiaSerhiivna/backend/authorization
+    
+    Supabase and jwt
+
+[33mcommit d86ba6beff40c1fa3e9d6850bdc0de31e678c41c[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Fri Jun 6 13:41:35 2025 +0200
+
+    Client authentication and authorization added. Endpoint request still to verified. Added supabase db connection
+
+[33mcommit a3509f1b43455ee22f17579e8405917ed3ab91d1[m
+Merge: 93f614b ee272d3
+Author: GoldExperienceRQ <122152527+GoldExperienceRQ@users.noreply.github.com>
+Date:   Thu Jun 5 20:09:44 2025 +0200
+
+    Merge pull request #4 from NataliiaSerhiivna/backend/creating_endpoints
+    
+    Backend/creating endpoints
+
+[33mcommit ee272d347351cb8a27c133e9dd53e888862afbdb[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Thu Jun 5 18:20:03 2025 +0200
+
+    added db  setup to  readme
+
+[33mcommit d7100997dcdebbae23b6fc0b06efb18bc9602116[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Thu Jun 5 18:04:27 2025 +0200
+
+    basic api is ready
+
+[33mcommit 56921165ffb54de04fd2c450113f0c1ed5b38b62[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Thu Jun 5 11:48:56 2025 +0200
+
+    Completed locations crud api (accept getAllLocations), added getAllFeatures, added camel to snake case conversion
+
+[33mcommit d7551a581f1a6161f055b1e3fd7e84c645e536b2[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Thu Jun 5 10:32:05 2025 +0200
+
+    Implemented get request to data base for a location
+
+[33mcommit 5a59656c5bd581299d76c89041504044f25efd35[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Wed Jun 4 14:07:32 2025 +0200
+
+    Created bd schema, created basic endpoints
+
+[33mcommit 93f614b55d6868fc02a86bf73a240b842999ca06[m
+Author: mariiaSychova <mariiasychova3@gmail.com>
+Date:   Sun Jun 1 23:00:33 2025 +0300
+
+    Updated README.md
+
+[33mcommit a50888a17fc0b48e60f5d2bfa9902b39a5ec1edb[m
+Merge: 763e0f8 de574b9
+Author: GoldExperienceRQ <122152527+GoldExperienceRQ@users.noreply.github.com>
+Date:   Sun Jun 1 21:32:56 2025 +0200
+
+    Merge pull request #3 from NataliiaSerhiivna/backend/creating_endpoints
+    
+    Backend/creating endpoints
+
+[33mcommit de574b9d72430cb6d7aef9f88843db68941a77ce[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Sun Jun 1 21:31:10 2025 +0200
+
+    Started working on location controller file, created location validation schema
+
+[33mcommit 70968c0b6fa919d549ef596412ba5b590874ca70[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Sat May 31 18:09:07 2025 +0200
+
+    Added initial backend environment setup in README.md file
+
+[33mcommit 222d87d803d0791c448fc5092bbd315cf0ec7d6b[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Fri May 30 12:22:40 2025 +0200
+
+    Created a basic outline of endpoints
+
+[33mcommit 763e0f880b02ed0e7fe5afaa10f322f1d94c5875[m
+Merge: 618b51c ab28c6c
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Wed May 28 16:40:23 2025 +0200
+
+    Merge branch 'main' of https://github.com/NataliiaSerhiivna/InclusiveWay
+    commit
+
+[33mcommit ab28c6c4cbd0a8f974ee9f4eac8d2dc886d5231f[m
+Author: GoldExperienceRQ <122152527+GoldExperienceRQ@users.noreply.github.com>
+Date:   Wed May 28 16:35:07 2025 +0200
+
+    Delete backend/src/server.js
+
+[33mcommit 0c83de3e01408f4cbfd1a4767e02a4d6eced3c7b[m
+Author: GoldExperienceRQ <122152527+GoldExperienceRQ@users.noreply.github.com>
+Date:   Wed May 28 16:34:59 2025 +0200
+
+    Delete backend/src/app.js
+
+[33mcommit fa1576b525284f032a86f0fea5e8ae7d4553c5c7[m
+Author: GoldExperienceRQ <122152527+GoldExperienceRQ@users.noreply.github.com>
+Date:   Wed May 28 16:34:30 2025 +0200
+
+    Delete backend/.env
+
+[33mcommit 618b51cbb9c532c1da10bb8303171a5f76b04e1a[m
+Author: Valentyn Radchenko <valentyn.radchenko@outlook.com>
+Date:   Wed May 28 16:32:47 2025 +0200
+
+    Basic api and environment setup created in docs folder
+
+[33mcommit 89b60bc2c967bcc7013bcde401d345f5fb365c96[m
+Merge: 1fc6ce5 660b8de
+Author: NataliyaSerhiivna <natalidoln213@gmail.com>
+Date:   Fri May 23 11:23:03 2025 +0300
+
+    Merge branch 'main' of https://github.com/NataliiaSerhiivna/InclusiveWay
+
+[33mcommit 1fc6ce5dd592a07ca0c6dc443302cb6b6c9b62b0[m
+Author: NataliyaSerhiivna <natalidoln213@gmail.com>
+Date:   Fri May 23 11:20:01 2025 +0300
+
+    Initial commit
+
+[33mcommit 660b8de0286112a63c38a133cd7b8a8b908075c7[m
+Author: NataliiaSerhiivna <108931943+NataliiaSerhiivna@users.noreply.github.com>
+Date:   Fri May 23 11:18:09 2025 +0300
+
+    Initial commit
