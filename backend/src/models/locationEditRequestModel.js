@@ -8,4 +8,12 @@ export default class LocationEditRequestModel {
     });
     return result;
   }
+  async read(id) {
+    const result = await prisma.location_edit_requests.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    return result;
+  }
 }
