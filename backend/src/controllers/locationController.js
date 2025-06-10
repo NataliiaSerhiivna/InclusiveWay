@@ -18,6 +18,7 @@ import {
   commentFullSchema,
 } from "../schemas/commentSchema.js";
 import locationsRetriever from "../unitilies/locationsRetriever.js";
+import camelcaseKeys from "camelcase-keys";
 
 const locationModel = new LocationModel();
 const locationFeatureModel = new LocationFeatureModel();
@@ -71,18 +72,9 @@ export const createLocation = async (req, res) => {
 export const getLocation = async (req, res) => {
   try {
     const location = await locationModel.getById(Number(req.params.id));
-    const features = location.location_features.map((lf) => lf.feature);
+    console.log(location);
 
-    const fullLocation = {
-      ...location,
-      features,
-    };
-
-    const response = fromDbToJSON(fullLocation);
-
-    const validatedResponse = locationFullSchema.parse(response);
-
-    res.status(200).send(validatedResponse);
+    res.status(200).send(camelcaseKeys(location, { deep: true }));
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
     else res.status(500).send(error.meassage);
@@ -192,7 +184,6 @@ export const getLocations = async (req, res) => {
     const response = result.locations.filter(
       (lcoation) => lcoation.approved === true
     );
-    console.log(response);
 
     res.status(200).send(response);
     return;

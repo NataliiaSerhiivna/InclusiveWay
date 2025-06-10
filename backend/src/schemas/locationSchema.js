@@ -37,7 +37,7 @@ export const locationFullSchema = locationCreateSchema.extend({
   id: z.number(),
   createdBy: z.number().min(1),
 
-  features: z.array(featureFullSchema),
+  features: z.array(z.number()),
   photos: z.array(lcoationPhotoFullSchema),
   comments: z.array(commentFullSchema).min(0),
 });

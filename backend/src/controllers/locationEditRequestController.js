@@ -5,7 +5,7 @@ import { locationEditRequestSchema } from "../schemas/locationEditRequestSchema.
 import snakecaseKeys from "snakecase-keys";
 import camelcaseKeys from "camelcase-keys";
 const locationEditRequestModel = new LocationEditRequestModel();
-const lcoationModel = new LocationModel();
+const locationModel = new LocationModel();
 export const addLocationEditRequest = async (req, res) => {
   try {
     const data = locationEditRequestSchema.parse(req.body);
@@ -27,7 +27,9 @@ export const addLocationEditRequest = async (req, res) => {
     else res.status(500).send(error.meassage);
   }
 };
-export const getLocationEditRequest = async (req, res) => {
+
+//To be done
+export const getAllLocationEditRequests = async (req, res) => {
   try {
     const changes = await locationEditRequestModel.read(Number(req.params.id));
     const currentLocation = await locationEditRequestModel.read(
@@ -38,6 +40,38 @@ export const getLocationEditRequest = async (req, res) => {
       changes,
       currentLocation,
     };
+    res.status(200).send(
+      camelcaseKeys(response, {
+        deep: true,
+      })
+    );
+    return;
+  } catch (error) {
+    if (error instanceof zod.ZodError) res.status(400).send(error.issues);
+    else res.status(500).send(error.meassage);
+    return;
+  }
+};
+
+export const getLocationEditRequest = async (req, res) => {
+  try {
+    const changes = await locationEditRequestModel.read(Number(req.params.id));
+    const currentLocation = await locationModel.getById(changes.location_id);
+
+    const response = {
+      changes,
+      currentLocation,
+    };
+    res.status(200).send(camelcaseKeys(response, { deep: true }));
+    return;
+  } catch (error) {
+    if (error instanceof zod.ZodError) res.status(400).send(error.issues);
+    else res.status(500).send(error.meassage);
+    return;
+  }
+};
+export const fulfillTheRequest = async (req, res) => {
+  try {
     res.status(200).send(camelcaseKeys(response, { deep: true }));
     return;
   } catch (error) {

@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { camelToSnakeCase } from "../unitilies/camelSnakeModifications.js";
+import { locationFullSchema } from "../schemas/locationSchema.js";
+import fromDbToJSON from "../unitilies/locationConverter.js";
 const prisma = new PrismaClient();
 
 export default class LocationModel {
@@ -10,8 +12,6 @@ export default class LocationModel {
     return newLocation;
   }
   async getById(locationId) {
-    console.log(locationId);
-
     const location = await prisma.locations.findUnique({
       where: { id: locationId },
       include: {
@@ -24,7 +24,17 @@ export default class LocationModel {
         },
       },
     });
-    return location;
+    const features = location.location_features.map((lf) => lf.feature);
+    const fullLocation = {
+      ...location,
+      features,
+    };
+
+    const convertedLocation = fromDbToJSON(fullLocation);
+
+    const validatedLocation = locationFullSchema.parse(convertedLocation);
+
+    return validatedLocation;
   }
   async patch(locationId, fieldsToPatch) {
     fieldsToPatch = camelToSnakeCase(fieldsToPatch);
