@@ -13,7 +13,7 @@ import {
   lcoationPhotoFullSchema,
   locationPhotoCreateSchema,
 } from "../schemas/locationPhotoSchema.js";
-
+import { editRequestSchema } from "../schemas/editRequestSchema.js";
 import {
   commentCreateSchema,
   commentFullSchema,
@@ -104,6 +104,20 @@ export const patchLocation = async (req, res) => {
   }
 };
 
+export const addLocationEditRequest = async (req, res) => {
+  try {
+    const editRequest = editRequestSchema.parse(req.body);
+    const patchedLocation = await locationModel.patch(
+      Number(req.params.id),
+      locationPatches
+    );
+    res.status(200).send(patchedLocation);
+  } catch (error) {
+    if (error instanceof zod.ZodError) res.status(400).send(error.issues);
+    else res.status(500).send(error.meassage);
+  }
+};
+
 export const deleteLocation = async (req, res) => {
   try {
     await locationModel.delete(Number(req.params.id));
@@ -124,6 +138,7 @@ export const addLocationPhoto = async (req, res) => {
       uploaded_at: photo.uploadedAt,
     });
     res.status(201).send(newPhoto);
+    return;
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
     else res.status(500).send(error.meassage);

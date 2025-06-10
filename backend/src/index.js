@@ -8,6 +8,7 @@ import featureRouter from "./routes/featureRouter.js";
 import photosRouter from "./routes/photosRouter.js";
 import profileRouter from "./routes/profileRouter.js";
 import userRouter from "./routes/userRouter.js";
+import editRequestRouter from "./routes/editRequestRouter.js";
 const app = express();
 
 app.use(express.json());
@@ -20,6 +21,7 @@ app.use("/features", featureRouter);
 app.use("/photos", photosRouter);
 app.use("/profile", profileRouter);
 app.use("/users", userRouter);
+app.use("/edit-requests", editRequestRouter);
 app.use(cookieParser());
 const PORT = process.env.PORT || 8080;
 
