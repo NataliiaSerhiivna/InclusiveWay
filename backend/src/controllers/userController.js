@@ -38,11 +38,8 @@ export const authenticateUser = async (req, res) => {
   try {
     const userData = userLoginSchema.parse(req.body);
     const user = await userModel.read(userData.email);
-    if (!user) {
-      res.status(401).send({ mesage: "Invalid credentials" });
-      return;
-    }
-    if (await bcrypt.compare(userData.password, user.password_hash)) {
+
+    if (bcrypt.compare(userData.password, user.password_hash)) {
       const token = jwt.sign(
         {
           id: user.id,
@@ -63,11 +60,6 @@ export const authenticateUser = async (req, res) => {
       delete user.password_hash;
       delete user.role;
       res.status(200).send(user);
-
-      return;
-    } else {
-      res.status(401).send({ mesage: "Invalid credentials" });
-      return;
     }
   } catch (error) {
     if (error instanceof zod.ZodError) {
