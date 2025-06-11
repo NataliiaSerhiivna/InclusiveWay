@@ -8,6 +8,13 @@ export default class LocationCommentModel {
 
     return newComment;
   }
+  async delete(id) {
+    await prisma.comments.delete({
+      where: {
+        id: id,
+      },
+    });
+  }
   async getComments(locationId) {
     return await prisma.comments.findMany({
       where: {

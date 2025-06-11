@@ -136,18 +136,31 @@ export const updateLocationFeatures = async (req, res) => {
 export const addLocationComment = async (req, res) => {
   try {
     const comment = commentCreateSchema.parse(req.body);
+
     const newComment = await locationCommentModel.create({
       location_id: Number(req.params.id),
-      user_id: Number(req.userid),
+      user_id: Number(req.userId),
       content: comment.content,
       created_at: comment.createdAt,
     });
-    console.log(newComment);
 
     res.status(200).send(newComment);
+    rerurn;
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
     else res.status(500).send(error.meassage);
+    return;
+  }
+};
+export const deleteLocationComment = async (req, res) => {
+  try {
+    await locationCommentModel.delete(Number(req.params.commentId));
+    res.status(200).send();
+    return;
+  } catch (error) {
+    if (error instanceof zod.ZodError) res.status(400).send(error.issues);
+    else res.status(500).send(error.meassage);
+    return;
   }
 };
 export const getLocationComments = async (req, res) => {
