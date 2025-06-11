@@ -23,4 +23,28 @@ export default class LocationEditRequestModel {
       },
     });
   }
+  async readMany({ searchString = "", page = 1, limit = 10 }) {
+    const skip = (page - 1) * limit;
+    const requests = await prisma.location_edit_requests.findMany({
+      where: {
+        location: {
+          OR: [
+            { name: { contains: searchString, mode: "insensitive" } },
+            { address: { contains: searchString, mode: "insensitive" } },
+          ],
+        },
+      },
+      include: {
+        location: {
+          select: {
+            name: true,
+            address: true,
+          },
+        },
+      },
+      skip: skip,
+      take: limit,
+    });
+    return requests;
+  }
 }

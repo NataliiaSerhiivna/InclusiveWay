@@ -20,3 +20,17 @@ export const locationEditRequestSchema = z
     payload: payloadEditSchema,
   })
   .strip();
+export const locationEditRequestRetrieveSchema =
+  locationEditRequestSchema.extend({
+    id: z.number(),
+    requestedBy: z.number(),
+  });
+const locationEditRequestFullSchema = locationEditRequestRetrieveSchema.extend({
+  location: z.object({
+    name: z.string(),
+    address: z.string(),
+  }),
+});
+export const locationEditRequestArrayFullSchema = z.array(
+  locationEditRequestFullSchema
+);
