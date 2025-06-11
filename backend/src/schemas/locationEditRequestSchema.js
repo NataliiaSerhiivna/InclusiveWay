@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { locationPhotoCreateSchema } from "./locationPhotoSchema.js";
 
-const payloadEditSchema = z
+export const payloadEditSchema = z
   .object({
     name: z.string().min(1),
     address: z.string().min(1),

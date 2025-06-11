@@ -38,7 +38,6 @@ export default class LocationModel {
   }
   async patch(locationId, fieldsToPatch) {
     fieldsToPatch = camelToSnakeCase(fieldsToPatch);
-    console.log(fieldsToPatch);
     const patchedLocation = await prisma.locations.update({
       where: {
         id: locationId,

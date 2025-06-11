@@ -16,4 +16,11 @@ export default class LocationEditRequestModel {
     });
     return result;
   }
+  async delete(id) {
+    await prisma.location_edit_requests.delete({
+      where: {
+        id: id,
+      },
+    });
+  }
 }
