@@ -51,7 +51,7 @@ model locations {
   longitude         Decimal             @db.Decimal(9, 6)
   description       String              @db.VarChar
   created_by        Int
-  author            users               @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  author            users               @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: Cascade)
 
   approved          Boolean            @default(false)
   verified          Boolean            @default(false)
@@ -60,6 +60,8 @@ model locations {
   comments          comments[]
   location_features locations_features[]
   location_photos   locations_photos[]
+  location_edit_requsts location_edit_requests[]
+
 }
 
 
@@ -71,6 +73,21 @@ model users {
   role          user_role   @default(user)
   comments      comments[]
   locations     locations[]
+  location_edit_requsts location_edit_requests[]
+
+}
+
+model location_edit_requests{
+  id Int @id @default(autoincrement())
+  location_id Int 
+  location_name String
+  location locations @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  
+  requested_by Int
+  user users @relation(fields: [requested_by], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  comment String?
+  requested_at DateTime @default(now()) @db.Timestamp(6)
+  payload Json
 }
 
 enum user_role {

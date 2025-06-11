@@ -26,20 +26,18 @@ export const locationUpdateSchema = z
   .object({
     name: z.string().min(1),
     address: z.string().min(1),
-    latitude: z.number().min(-90).max(90),
-    longitude: z.number().min(-180).max(180),
     description: z.string().min(10),
     approved: z.boolean(),
     verified: z.boolean(),
   })
-  .strict()
+  .strip()
   .partial();
 
 export const locationFullSchema = locationCreateSchema.extend({
   id: z.number(),
   createdBy: z.number().min(1),
 
-  features: z.array(featureFullSchema),
+  features: z.array(z.number()),
   photos: z.array(lcoationPhotoFullSchema),
   comments: z.array(commentFullSchema).min(0),
 });

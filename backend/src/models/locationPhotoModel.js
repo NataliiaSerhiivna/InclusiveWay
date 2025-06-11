@@ -18,5 +18,19 @@ export default class LocationPhotoModel {
       },
     });
   }
-  async getAll() {}
+  async deleteMany(photoIds) {
+    await prisma.locations_photos.deleteMany({
+      where: {
+        id: {
+          in: photoIds,
+        },
+      },
+    });
+  }
+  async createMany(photos) {
+    const newPhotos = await prisma.locations_photos.createMany({
+      data: photos,
+    });
+    console.log(newPhotos);
+  }
 }

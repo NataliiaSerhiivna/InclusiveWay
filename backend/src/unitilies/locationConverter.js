@@ -10,14 +10,7 @@ export default function fromDbToJSON(fullLocation) {
     approved: fullLocation.approved,
     verified: fullLocation.verified,
     createdAt: fullLocation.created_at.toISOString(),
-    features: fullLocation.features.map(
-      (lf) =>
-        (lf = {
-          id: lf.id,
-          name: lf.name,
-          description: lf.description,
-        })
-    ),
+    features: fullLocation.features.map((lf) => lf.id),
     photos: fullLocation.location_photos.map(
       (lf) =>
         (lf = {

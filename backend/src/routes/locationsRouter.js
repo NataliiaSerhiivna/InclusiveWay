@@ -9,6 +9,7 @@ import {
   getLocations,
   addLocationComment,
   getLocationComments,
+  deleteLocationComment,
   getPendingLocations,
   analyzeRouteForAccessibility,
 } from "../controllers/locationController.js";
@@ -31,6 +32,11 @@ router.patch("/:id", authenticateAdminToken, patchLocation);
 router.delete("/:id", authenticateAdminToken, deleteLocation);
 
 router.post("/:id/comments", authenticateUserToken, addLocationComment);
+router.delete(
+  "/:id/comments/:commentId",
+  authenticateAdminToken,
+  deleteLocationComment
+);
 router.get("/:id/comments", getLocationComments);
 
 router.put("/:id/features", authenticateAdminToken, updateLocationFeatures);
