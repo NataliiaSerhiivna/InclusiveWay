@@ -1,0 +1,17 @@
+.map-area {
+  flex: 0 0 1200px;
+  height: 712px;
+  background: #e3fae8;
+  border-radius: 24px;
+  margin: 40px 60px 0 80px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 24px;
+  position: relative;
+  box-sizing: border-box;
+  margin-top: 128px;
+}
+.leaflet-top.leaflet-right {
+  display: none !important;
+}

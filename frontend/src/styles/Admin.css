@@ -1,0 +1,83 @@
+.admin-page {
+  background: #fff;
+  min-height: 100vh;
+  padding-top: 112px;
+}
+.admin-content {
+  max-width: 700px;
+  margin: 40px auto 0 auto;
+  padding: 24px;
+}
+.admin-tab-btn {
+  background: #e3fae8;
+  color: #0030c0;
+  border: none;
+  border-radius: 16px 16px 0 0;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 12px 28px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-bottom: -2px;
+}
+.admin-tab-btn:hover,
+.admin-tab-btn.active {
+  background: #00c853;
+  color: #fff;
+}
+.admin-list-block {
+  background: #f7fbff;
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 32px 32px 18px 32px;
+  margin-bottom: 32px;
+}
+.admin-list-block h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #334059;
+  margin-bottom: 18px;
+}
+.admin-list-block ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.admin-list-block li {
+  font-size: 17px;
+  color: #334059;
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 18px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 4px #0001;
+  justify-content: space-between;
+}
+.admin-list-actions {
+  display: flex;
+  gap: 10px;
+}
+.admin-action-btn {
+  background: #0296d6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 6px 18px;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: background 0.2s;
+}
+.admin-action-btn:hover {
+  background: #0030c0;
+}
+.admin-delete-btn {
+  background: #ff5c45;
+}
+.admin-delete-btn:hover {
+  background: #d32f2f;
+}
