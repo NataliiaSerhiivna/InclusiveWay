@@ -37,34 +37,46 @@ export const createUser = async (req, res) => {
 };
 export const authenticateUser = async (req, res) => {
   try {
-    const userData = userLoginSchema.parse(req.body);
-    const user = await userModel.read(userData.email);
+    const userData = userCreateSchema.parse(req.body);
 
+    let user = await userModel.read(userData.email);
     if (!user) {
-      res.status(401).send({ mesage: "Invalid credentials" });
-      return;
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+      user = await userModel.create({
+        username: userData.username,
+        email: userData.email,
+        password_hash: hashedPassword,
+      });
+
+      console.log("User created");
     }
 
     if (bcrypt.compare(userData.password, user.password_hash)) {
-      const token = jwt.sign(
-        {
-          id: user.id,
-          email: user.email,
-        },
-        JWT_SECRET,
-        {
-          expiresIn: "3m",
-        }
-      );
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-        maxAge: 60 * 3 * 1000,
-      });
-      delete user.id;
+      const oldToken = req.cookies?.token;
+
+      if (!oldToken) {
+        const newToken = jwt.sign(
+          {
+            id: user.id,
+            email: user.email,
+          },
+          JWT_SECRET,
+          {
+            expiresIn: "3m",
+          }
+        );
+        res.cookie("token", newToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          maxAge: 60 * 3 * 1000,
+        });
+      }
+
       delete user.password_hash;
       delete user.role;
+
       res.status(200).send(user);
       return;
     } else {

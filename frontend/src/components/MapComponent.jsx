@@ -17,6 +17,7 @@ import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import { useNavigate } from "react-router-dom";
 import "../styles/MapComponent.css";
+import { addComment, getComments, getUsers } from "../api";
 
 const MapClickHandler = ({ onMapClick }) => {
   useMapEvents({
@@ -57,6 +58,16 @@ const RoutingMachine = ({ waypoints }) => {
   return null;
 };
 
+function CenterMap({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    if (Array.isArray(center) && center.length === 2) {
+      map.setView(center, 15, { animate: true });
+    }
+  }, [center, map]);
+  return null;
+}
+
 const MapComponent = ({
   markers,
   setMarkers,
@@ -66,16 +77,34 @@ const MapComponent = ({
   onMapClick,
   onMarkerClick,
   user,
+  center,
 }) => {
   const [showCommentForm, setShowCommentForm] = useState({});
   const [commentText, setCommentText] = useState("");
+  const [commentError, setCommentError] = useState("");
+  const [commentSuccess, setCommentSuccess] = useState("");
+  const [usernamesMap, setUsernamesMap] = useState({}); // userId -> username
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getUsers({ limit: 1000 }).then((res) => {
+      if (res && res.users) {
+        const map = {};
+        res.users.forEach((u) => {
+          map[u.id] = u.username || u.email || `User #${u.id}`;
+        });
+        setUsernamesMap(map);
+      }
+    });
+  }, []);
+
   return (
     <MapContainer
-      center={[50.4501, 30.5234]}
+      center={center || [50.4501, 30.5234]}
       zoom={13}
       style={{ height: "100%", width: "100%" }}
     >
+      <CenterMap center={center} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -165,7 +194,12 @@ const MapComponent = ({
                           color: "#334059",
                         }}
                       >
-                        <b>{comment.author}:</b> {comment.text}
+                        <b>
+                          {usernamesMap[comment.userId] ||
+                            `User #${comment.userId}`}
+                          :
+                        </b>{" "}
+                        {comment.text}
                       </div>
                     ))
                   ) : (
@@ -174,50 +208,14 @@ const MapComponent = ({
                     </div>
                   )}
                 </div>
-                <button
-                  className="add-comment-btn"
-                  style={{
-                    marginTop: 10,
-                    width: "100%",
-                    background: "#00c853",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 12,
-                    fontSize: 16,
-                    fontWeight: 700,
-                    height: 40,
-                    cursor: "pointer",
-                  }}
-                  onClick={() =>
-                    setShowCommentForm({
-                      ...showCommentForm,
-                      [idx]: !showCommentForm[idx],
-                    })
-                  }
-                >
-                  Додати коментар
-                </button>
-                {showCommentForm[idx] && (
-                  <div style={{ marginTop: 10 }}>
-                    <textarea
-                      value={commentText}
-                      onChange={(e) => setCommentText(e.target.value)}
-                      rows={3}
-                      style={{
-                        width: "100%",
-                        borderRadius: 8,
-                        border: "1px solid #ccc",
-                        padding: 8,
-                        fontSize: 15,
-                        resize: "none",
-                        marginBottom: 8,
-                      }}
-                      placeholder="Ваш коментар..."
-                    />
+                {user && (
+                  <>
                     <button
+                      className="add-comment-btn"
                       style={{
+                        marginTop: 10,
                         width: "100%",
-                        background: "#17ccff",
+                        background: "#00c853",
                         color: "#fff",
                         border: "none",
                         borderRadius: 12,
@@ -226,11 +224,120 @@ const MapComponent = ({
                         height: 40,
                         cursor: "pointer",
                       }}
-                      onClick={() => {}}
+                      onClick={() =>
+                        setShowCommentForm({
+                          ...showCommentForm,
+                          [idx]: !showCommentForm[idx],
+                        })
+                      }
                     >
-                      Опублікувати коментар
+                      Додати коментар
                     </button>
-                  </div>
+                    {showCommentForm[idx] && (
+                      <div style={{ marginTop: 10 }}>
+                        <textarea
+                          value={commentText}
+                          onChange={(e) => setCommentText(e.target.value)}
+                          rows={3}
+                          style={{
+                            width: "100%",
+                            borderRadius: 8,
+                            border: "1px solid #ccc",
+                            padding: 8,
+                            fontSize: 15,
+                            resize: "none",
+                            marginBottom: 8,
+                          }}
+                          placeholder="Ваш коментар..."
+                        />
+                        <button
+                          style={{
+                            width: "100%",
+                            background: "#17ccff",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 12,
+                            fontSize: 16,
+                            fontWeight: 700,
+                            height: 40,
+                            cursor: "pointer",
+                          }}
+                          onClick={async () => {
+                            setCommentError("");
+                            setCommentSuccess("");
+                            if (!user) {
+                              setCommentError(
+                                "Щоб додати коментар, увійдіть у систему."
+                              );
+                              return;
+                            }
+                            try {
+                              let token = localStorage.getItem(
+                                "inclusive-way-google-jwt"
+                              );
+                              if (token) {
+                                try {
+                                  const parsed = JSON.parse(token);
+                                  token = undefined;
+                                } catch {}
+                              }
+                              if (typeof token !== "string") token = undefined;
+                              await addComment(
+                                point.id,
+                                {
+                                  content: commentText,
+                                  createdAt: new Date().toISOString(),
+                                },
+                                token
+                              );
+                              const response = await getComments(point.id);
+                              if (setMarkers) {
+                                setMarkers((prev) =>
+                                  prev.map((m, i) =>
+                                    i === idx
+                                      ? {
+                                          ...m,
+                                          comments: response.comments.map(
+                                            (c) => ({
+                                              userId: c.userId,
+                                              text: c.content,
+                                            })
+                                          ),
+                                        }
+                                      : m
+                                  )
+                                );
+                              }
+                              setCommentText("");
+                              setCommentSuccess("Коментар додано!");
+                              setTimeout(
+                                () =>
+                                  setShowCommentForm((f) => ({
+                                    ...f,
+                                    [idx]: false,
+                                  })),
+                                1000
+                              );
+                            } catch (e) {
+                              setCommentError(e.message);
+                            }
+                          }}
+                        >
+                          Опублікувати коментар
+                        </button>
+                      </div>
+                    )}
+                    {commentError && (
+                      <div style={{ color: "red", marginTop: 5 }}>
+                        {commentError}
+                      </div>
+                    )}
+                    {commentSuccess && (
+                      <div style={{ color: "green", marginTop: 5 }}>
+                        {commentSuccess}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
               {point && user && (
@@ -248,7 +355,9 @@ const MapComponent = ({
                     height: 40,
                     cursor: "pointer",
                   }}
-                  onClick={() => navigate("/edit-location-request")}
+                  onClick={() =>
+                    navigate(`/edit-location-request?id=${point.id}`)
+                  }
                 >
                   Редагувати локацію
                 </button>
