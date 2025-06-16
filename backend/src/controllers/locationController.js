@@ -72,7 +72,6 @@ export const createLocation = async (req, res) => {
 export const getLocation = async (req, res) => {
   try {
     const location = await locationModel.getById(Number(req.params.id));
-    console.log(location);
 
     res.status(200).send(camelcaseKeys(location, { deep: true }));
   } catch (error) {

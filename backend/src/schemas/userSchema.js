@@ -24,7 +24,6 @@ export const userFullSchema = userCreateSchema
 export const userEditSchema = z
   .object({
     username: z.string().min(3),
-    email: z.string().email(),
   })
   .strip()
   .partial();
