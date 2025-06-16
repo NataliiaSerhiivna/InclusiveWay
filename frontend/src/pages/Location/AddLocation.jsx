@@ -62,7 +62,7 @@ export default function AddLocation() {
       userId = JSON.parse(userSession)?.id;
     } catch {}
     try {
-      await addLocation({
+      const resp = await addLocation({
         name: form.name,
         address: form.address,
         latitude: marker ? marker[0] : null,
@@ -81,6 +81,11 @@ export default function AddLocation() {
         ],
         createdBy: userId,
       });
+
+      const jsonResp = await resp.json();
+
+      //console.log(jsonResp);
+
       setSuccess(true);
       setForm({
         name: "",
@@ -94,6 +99,9 @@ export default function AddLocation() {
       setPhotoDescription("");
       navigate("/");
     } catch (e) {
+      console.log("Here, catch");
+      console.log(e);
+
       setError(e.message);
     } finally {
       setLoading(false);

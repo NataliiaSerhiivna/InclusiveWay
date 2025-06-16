@@ -14,4 +14,5 @@ export const commentFullSchema = commentCreateSchema.extend({
   id: z.number(),
   locationId: z.number(),
   userId: z.number(),
+  userName: z.string(),
 });

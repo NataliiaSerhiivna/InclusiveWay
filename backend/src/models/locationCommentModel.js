@@ -20,6 +20,13 @@ export default class LocationCommentModel {
       where: {
         location_id: locationId,
       },
+      include: {
+        users: {
+          include: {
+            name: true,
+          },
+        },
+      },
     });
   }
 }

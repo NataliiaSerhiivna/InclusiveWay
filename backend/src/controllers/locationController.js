@@ -168,19 +168,25 @@ export const getLocationComments = async (req, res) => {
     const comments = await locationCommentModel.getComments(
       Number(req.params.id)
     );
+    console.log(comments);
+
     const response = {
       comments: [],
     };
 
     for (let i = 0; i < comments.length; i++) {
       const currentComment = comments.at(i);
+      console.log(currentComment);
+
       const convertedComment = {
         id: currentComment.id,
         locationId: currentComment.location_id,
         userId: currentComment.user_id,
+        userName: currentComment.users.name,
         content: currentComment.content,
         createdAt: currentComment.created_at.toISOString(),
       };
+
       const validatedComment = commentFullSchema.parse(convertedComment);
       response.comments.push(validatedComment);
     }
@@ -194,6 +200,7 @@ export const getLocationComments = async (req, res) => {
 export const getLocations = async (req, res) => {
   try {
     const result = await locationsRetriever(req);
+
     const response = result.locations.filter(
       (lcoation) => lcoation.approved === true
     );
