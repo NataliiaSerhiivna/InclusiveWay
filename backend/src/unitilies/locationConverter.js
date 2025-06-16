@@ -27,6 +27,7 @@ export default function fromDbToJSON(fullLocation) {
           id: lc.id,
           locationId: lc.location_id,
           userId: lc.user_id,
+          userName: lc.users.username,
           content: lc.content,
           createdAt: lc.created_at.toISOString(),
         })

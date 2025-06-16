@@ -37,6 +37,8 @@ function App() {
 
   useEffect(() => {
     const userSession = localStorage.getItem(localhostGoogleJwtKey);
+    console.log(userSession);
+
     setUser(JSON.parse(userSession || null));
   }, []);
   useEffect(() => {

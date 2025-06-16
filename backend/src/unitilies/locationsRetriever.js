@@ -16,8 +16,9 @@ export default async function locationsRetriever(req) {
     page,
     limit,
   };
-  const locations = await locationModel.getLocations(filters);
 
+  const locations = await locationModel.getLocations(filters);
+  console.log(locations);
   const result = {
     locations: [],
   };

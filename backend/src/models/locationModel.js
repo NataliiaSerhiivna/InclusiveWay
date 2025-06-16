@@ -16,7 +16,15 @@ export default class LocationModel {
       where: { id: locationId },
       include: {
         location_photos: true,
-        comments: true,
+        comments: {
+          include: {
+            users: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        },
         location_features: {
           include: {
             feature: true,
@@ -81,6 +89,15 @@ export default class LocationModel {
             },
           ],
         }),
+        ...(featureIds.length > 0 && {
+          location_features: {
+            some: {
+              feature_id: {
+                in: featureIds,
+              },
+            },
+          },
+        }),
       },
       include: {
         location_features: {
@@ -89,7 +106,15 @@ export default class LocationModel {
           },
         },
         location_photos: true,
-        comments: true,
+        comments: {
+          include: {
+            users: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        },
       },
       skip,
       take: limit,
