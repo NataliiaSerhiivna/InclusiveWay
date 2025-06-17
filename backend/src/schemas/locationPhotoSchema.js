@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const locationPhotoCreateSchema = z.object({
   imageURL: z.string(),
-  description: z.string().min(10),
+  description: z.string(),
   uploadedAt: z
     .string()
     .refine((val) => !isNaN(Date.parse(val)))

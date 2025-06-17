@@ -5,7 +5,7 @@ export const payloadEditSchema = z
   .object({
     name: z.string().min(1),
     address: z.string().min(1),
-    description: z.string().min(10),
+    description: z.string(),
     features: z.array(z.number()).min(1),
     photosToAdd: z.array(locationPhotoCreateSchema),
     photosToDelete: z.array(z.number()),
