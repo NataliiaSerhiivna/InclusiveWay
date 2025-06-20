@@ -1,97 +1,117 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../../styles/Admin.css";
-import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-
-const locations = [
-  {
-    id: 1,
-    photo:
-      "https://smartinfo.com.ua/crop/880x496/storage/photos/r/e/rest.Musafir.1.jpg",
-    name: "Musafir",
-    address: "вул. Богдана Хмельницького, 3Б, Київ",
-    description:
-      "Ресторан східної кухні з обмеженим доступом для інклюзивних відвідувачів.",
-    accessibility: ["Доступна вбиральня"],
-    comments: [
-      {
-        author: "Олена",
-        text: "Дуже смачна кухня, але мало зручностей для інклюзивних людей.",
-      },
-      { author: "Ігор", text: "Потрібно більше пандусів і ширших дверей." },
-    ],
-  },
-];
-
-const allTags = [
-  "Пандус",
-  "Ліфт",
-  "Рейки для візків",
-  "Доступна вбиральня",
-  "Стіл для пеленання",
-  "Широкі двері",
-  "Кнопка виклику допомоги",
-  "Парковка для людей з інвалідністю",
-];
+import { useParams, useNavigate } from "react-router-dom";
+import { getLocation, deleteLocation, getFeatures } from "../../api";
 
 export default function AdminLocation() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const loc = locations.find((l) => l.id === Number(id));
+  const [location, setLocation] = useState(null);
+  const [allFeatures, setAllFeatures] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
-  if (!loc) return <div style={{ padding: 40 }}>Локацію не знайдено</div>;
+  useEffect(() => {
+    setLoading(true);
+    setError("");
+    Promise.all([getLocation(id), getFeatures()])
+      .then(([locationData, featuresData]) => {
+        setLocation(locationData);
+        setAllFeatures(featuresData);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(e.message || "Помилка завантаження локації");
+        setLoading(false);
+      });
+  }, [id]);
+
+  const handleDelete = async () => {
+    if (!window.confirm("Ви впевнені, що хочете видалити цю локацію?")) return;
+    setDeleting(true);
+    setError("");
+    try {
+      await deleteLocation(id);
+      navigate("/admin-page");
+    } catch (e) {
+      setError(e.message || "Помилка видалення локації");
+    }
+    setDeleting(false);
+  };
+
+  if (loading) return <div style={{ padding: 40 }}>Завантаження...</div>;
+  if (error) return <div style={{ padding: 40, color: "red" }}>{error}</div>;
+  if (!location) return <div style={{ padding: 40 }}>Локацію не знайдено</div>;
 
   return (
-    <div className="add-location-page">
+    <div className="add-location-page" style={{ overflowY: "auto", height: "calc(100vh - 100px)" }}>
       <div
         className="add-location-form"
         style={{ maxWidth: 700, marginTop: 32 }}
       >
         <div className="form-row" style={{ justifyContent: "center" }}>
-          <img
-            src={loc.photo}
-            alt={loc.name}
-            style={{
-              width: "100%",
-              maxWidth: 500,
-              height: 260,
-              objectFit: "cover",
-              borderRadius: 16,
-              boxShadow: "0 2px 8px #0001",
-              marginBottom: 24,
-            }}
-          />
+          {(() => {
+            let photoUrl = null;
+            if (location.photos && location.photos[0]) {
+              const p = location.photos[0];
+              photoUrl =
+                p.imageUrl || p.imageUrl || p.image_url || p.url || null;
+            }
+            return photoUrl ? (
+              <img
+                src={photoUrl}
+                alt={location.name}
+                style={{
+                  width: "100%",
+                  maxWidth: 500,
+                  height: 260,
+                  objectFit: "cover",
+                  borderRadius: 16,
+                  boxShadow: "0 2px 8px #0001",
+                  marginBottom: 24,
+                }}
+              />
+            ) : null;
+          })()}
         </div>
         <div className="form-row" style={{ marginBottom: 10 }}>
           <label>Назва</label>
-          <div>{loc.name}</div>
+          <div>{location.name}</div>
         </div>
         <div className="form-row" style={{ marginBottom: 10 }}>
           <label>Адреса</label>
-          <div>{loc.address}</div>
+          <div>{location.address}</div>
         </div>
         <div className="form-row" style={{ marginBottom: 18 }}>
           <label>Опис</label>
-          <div>{loc.description}</div>
+          <div>{location.description}</div>
         </div>
         <div className="form-row" style={{ marginBottom: 24 }}>
           <label>Доступність</label>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-            {loc.accessibility.map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  background: "#17ccff",
-                  color: "#fff",
-                  borderRadius: 12,
-                  padding: "7px 18px",
-                  fontWeight: 700,
-                  fontSize: 15,
-                }}
-              >
-                {tag}
-              </span>
-            ))}
+            {(location.features || [])
+              .map((featureId) => {
+                if (!allFeatures) return null;
+                const feature = allFeatures.find((f) => f.id === featureId);
+                return feature ? feature.name : null;
+              })
+              .filter(Boolean)
+              .map((tag) => (
+                <span
+                  key={tag}
+                  style={{
+                    background: "#17ccff",
+                    color: "#fff",
+                    borderRadius: 12,
+                    padding: "7px 18px",
+                    fontWeight: 700,
+                    fontSize: 15,
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
           </div>
         </div>
         <div className="form-row">
@@ -104,8 +124,8 @@ export default function AdminLocation() {
               width: "100%",
             }}
           >
-            {loc.comments && loc.comments.length > 0 ? (
-              loc.comments.map((c, i) => (
+            {location.comments && location.comments.length > 0 ? (
+              location.comments.map((c, i) => (
                 <div
                   key={i}
                   style={{
@@ -115,7 +135,8 @@ export default function AdminLocation() {
                     boxShadow: "0 1px 4px #0001",
                   }}
                 >
-                  <b>{c.author}:</b> <span>{c.text}</span>
+                  <b>{c.author || c.email || `User #${c.userId}`}:</b>{" "}
+                  <span>{c.text || c.content || ""}</span>
                 </div>
               ))
             ) : (
@@ -144,7 +165,7 @@ export default function AdminLocation() {
               cursor: "pointer",
               transition: "background 0.2s",
             }}
-            onClick={() => navigate(`/admin-location/${loc.id}/edit`)}
+            onClick={() => navigate(`/admin-location/${location.id}/edit`)}
           >
             Редагувати
           </button>
@@ -161,11 +182,14 @@ export default function AdminLocation() {
               cursor: "pointer",
               transition: "background 0.2s",
             }}
+            onClick={handleDelete}
+            disabled={deleting}
           >
-            Видалити
+            {deleting ? "Видалення..." : "Видалити"}
           </button>
         </div>
       </div>
+      {error && <div style={{ color: "red", marginTop: 20 }}>{error}</div>}
     </div>
   );
 }

@@ -32,7 +32,8 @@ export async function getPendingLocations(params = {}) {
 }
 
 export async function getFeatures() {
-  return request("/features");
+  const response = await request("/features");
+  return response;
 }
 export async function updateLocationFeatures(id, features) {
   return request(`/locations/${id}/features`, {
@@ -73,6 +74,11 @@ export async function getUsers(params = {}) {
   return request(`/users?${query}`, {});
 }
 
+export async function getEditRequests(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  return request(`/location-edit-requests?${query}`, {});
+}
+
 export async function addEditRequest(data) {
   return request("/location-edit-requests", {
     method: "POST",
@@ -80,7 +86,17 @@ export async function addEditRequest(data) {
   });
 }
 export async function getEditRequest(id) {
-  return request(`/location-edit-requests/${id}`, {});
+  const response = await request(`/location-edit-requests/${id}`);
+  console.log("Edit request response:", response);
+
+  if (!response) {
+    throw new Error("Заявку не знайдено");
+  }
+
+  return {
+    request: response.validatedChanges,
+    location: response.currentLocation,
+  };
 }
 export async function applyEditRequest(id, data) {
   return request(`/location-edit-requests/${id}`, {
@@ -91,6 +107,13 @@ export async function applyEditRequest(id, data) {
 export async function rejectEditRequest(id) {
   return request(`/location-edit-requests/${id}`, { method: "DELETE" });
 }
+
+export const updateLocation = async (id, data) => {
+  return request(`/locations/${id}`, {
+    method: "PATCH",
+    body: data,
+  });
+};
 
 async function request(path, { method = "GET", body } = {}) {
   const headers = { "Content-Type": "application/json" };
@@ -111,6 +134,13 @@ async function request(path, { method = "GET", body } = {}) {
   }
 
   if (!res.ok) {
+    if (res.status === 401) {
+      const userSession = localStorage.getItem("inclusive-way-google-jwt");
+      if (userSession) {
+        setTimeout(() => window.location.reload(), 500);
+        return;
+      }
+    }
     throw new Error((data && data.message) || data || res.statusText);
   }
   if (res.status === 204) return null;

@@ -16,7 +16,7 @@ export default function fromDbToJSON(fullLocation) {
         (lf = {
           id: lf.id,
           locationId: lf.location_id,
-          imageURL: lf.image_url,
+          imageUrl: lf.image_url,
           description: lf.description,
           uploadedAt: lf.uploaded_at.toISOString(),
         })

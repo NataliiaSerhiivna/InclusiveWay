@@ -1,47 +1,87 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../../styles/Admin.css";
-import { useParams } from "react-router-dom";
-
-const currentLocation = {
-  id: 1,
-  photo:
-    "https://smartinfo.com.ua/crop/880x496/storage/photos/r/e/rest.Musafir.1.jpg",
-  name: "Musafir",
-  address: "вул. Богдана Хмельницького, 3Б, Київ",
-  description:
-    "Ресторан східної кухні з обмеженим доступом для інклюзивних відвідувачів.",
-  accessibility: ["Доступна вбиральня"],
-};
-
-const requests = [
-  {
-    id: 1,
-    author: { name: "Іван Петренко", email: "ivan.petrenko@gmail.com" },
-    photo:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4_mN1wZE0_yZztORpHC7KB9io7-M8ZLIV45-PCvcVGijA7-eH7PIkgABZm2TvFGUFo8A&usqp=CAU",
-    name: "Musafir",
-    address: "вул. Богдана Хмельницького, 3Б, Київ",
-    description: "Сучасний ресторан з доступною інфраструктурою.",
-    accessibility: ["Пандус", "Доступна вбиральня", "Широкі двері"],
-  },
-];
-
-const allTags = [
-  "Пандус",
-  "Ліфт",
-  "Рейки для візків",
-  "Доступна вбиральня",
-  "Стіл для пеленання",
-  "Широкі двері",
-  "Кнопка виклику допомоги",
-  "Парковка для людей з інвалідністю",
-];
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  getEditRequest,
+  applyEditRequest,
+  rejectEditRequest,
+  getFeatures,
+} from "../../api";
 
 export default function AdminEditRequest() {
   const { id } = useParams();
-  const req = requests.find((r) => r.id === Number(id));
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [request, setRequest] = useState(null);
+  const [location, setLocation] = useState(null);
+  const [features, setFeatures] = useState([]);
+  const [actionLoading, setActionLoading] = useState(false);
 
-  if (!req) return <div style={{ padding: 40 }}>Заявку не знайдено</div>;
+  useEffect(() => {
+    Promise.all([getEditRequest(id), getFeatures()])
+      .then(([data, featuresList]) => {
+        console.log("Отримані дані:", data);
+        console.log("Отримані теги:", featuresList);
+
+        if (!data || (!data.request && !data.location)) {
+          throw new Error("Заявку не знайдено");
+        }
+
+        setRequest(data.request);
+        setLocation(data.location);
+        setFeatures(featuresList);
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.error("Помилка при завантаженні:", e);
+        setError(e.message || "Помилка завантаження");
+        setLoading(false);
+      });
+  }, [id]);
+
+  const handleApprove = async () => {
+    setActionLoading(true);
+    try {
+      const requestData = {
+        id: Number(id),
+        locationId: request.locationId,
+        requestedBy: request.requestedBy,
+        comment: request.comment || null,
+        payload: request.payload,
+      };
+      await applyEditRequest(id, requestData);
+      navigate("/admin-page", { state: { activeTab: "edit" } });
+    } catch (e) {
+      setError(e.message || "Помилка при схваленні");
+    }
+    setActionLoading(false);
+  };
+
+  const handleReject = async () => {
+    setActionLoading(true);
+    try {
+      await rejectEditRequest(id);
+      navigate("/admin-page");
+    } catch (e) {
+      setError(e.message || "Помилка при відхиленні");
+    }
+    setActionLoading(false);
+  };
+
+  const getFeatureName = (featureId) => {
+    const feature = features.find((f) => f.id === featureId);
+    return feature ? feature.name : `Тег ${featureId}`;
+  };
+
+  if (loading) return <div style={{ padding: 40 }}>Завантаження...</div>;
+  if (error) return <div style={{ padding: 40, color: "red" }}>{error}</div>;
+  if (!request || !location)
+    return <div style={{ padding: 40 }}>Заявку не знайдено</div>;
+
+  const payload = request.payload || {};
+
+  console.log("Rendering with:", { request, location, payload });
 
   return (
     <div className="add-location-page">
@@ -50,15 +90,6 @@ export default function AdminEditRequest() {
         className="add-location-form"
         style={{ maxWidth: 900, marginTop: 32 }}
       >
-        <div className="form-row">
-          <label>Автор</label>
-          <div>
-            {req.author.name}{" "}
-            <span style={{ fontSize: 15, marginLeft: 8 }}>
-              {req.author.email}
-            </span>
-          </div>
-        </div>
         <div
           style={{
             display: "flex",
@@ -81,38 +112,39 @@ export default function AdminEditRequest() {
             </div>
             <div className="form-row">
               <label>Фото</label>
-              <img
-                src={currentLocation.photo}
-                alt="Було"
-                style={{
-                  width: 140,
-                  height: 90,
-                  objectFit: "cover",
-                  borderRadius: 10,
-                  boxShadow: "0 2px 8px #0001",
-                  marginBottom: 18,
-                }}
-              />
+              {location && location.photos && location.photos[0] && (
+                <img
+                  src={location.photos[0].imageUrl}
+                  alt="Було"
+                  style={{
+                    width: 140,
+                    height: 90,
+                    objectFit: "cover",
+                    borderRadius: 10,
+                    boxShadow: "0 2px 8px #0001",
+                    marginBottom: 18,
+                  }}
+                />
+              )}
             </div>
             <div className="form-row" style={{ marginBottom: 10 }}>
               <label>Назва</label>
-              <div>{currentLocation.name}</div>
+              <div>{location && location.name}</div>
             </div>
             <div className="form-row" style={{ marginBottom: 10 }}>
               <label>Адреса</label>
-              <div>{currentLocation.address}</div>
+              <div>{location && location.address}</div>
             </div>
             <div className="form-row" style={{ marginBottom: 18 }}>
               <label>Опис</label>
-              <div>{currentLocation.description}</div>
+              <div>{location && location.description}</div>
             </div>
-            <div style={{ height: 24 }}></div>
             <div className="form-row">
               <label>Доступність</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {currentLocation.accessibility.map((tag) => (
+                {(location.features || []).map((featureId) => (
                   <span
-                    key={tag}
+                    key={featureId}
                     style={{
                       background: "#17ccff",
                       color: "#fff",
@@ -122,7 +154,7 @@ export default function AdminEditRequest() {
                       fontSize: 14,
                     }}
                   >
-                    {tag}
+                    {getFeatureName(featureId)}
                   </span>
                 ))}
               </div>
@@ -141,38 +173,39 @@ export default function AdminEditRequest() {
             </div>
             <div className="form-row">
               <label>Фото</label>
-              <img
-                src={req.photo}
-                alt="Стало"
-                style={{
-                  width: 140,
-                  height: 90,
-                  objectFit: "cover",
-                  borderRadius: 10,
-                  boxShadow: "0 2px 8px #0001",
-                  marginBottom: 18,
-                }}
-              />
+              {payload && payload.photosToAdd && payload.photosToAdd[0] && (
+                <img
+                  src={payload.photosToAdd[0].imageUrl}
+                  alt="Стало"
+                  style={{
+                    width: 140,
+                    height: 90,
+                    objectFit: "cover",
+                    borderRadius: 10,
+                    boxShadow: "0 2px 8px #0001",
+                    marginBottom: 18,
+                  }}
+                />
+              )}
             </div>
             <div className="form-row" style={{ marginBottom: 10 }}>
               <label>Назва</label>
-              <div>{req.name}</div>
+              <div>{payload && payload.name}</div>
             </div>
             <div className="form-row" style={{ marginBottom: 10 }}>
               <label>Адреса</label>
-              <div>{req.address}</div>
+              <div>{payload && payload.address}</div>
             </div>
             <div className="form-row" style={{ marginBottom: 18 }}>
               <label>Опис</label>
-              <div>{req.description}</div>
+              <div>{payload && payload.description}</div>
             </div>
-            <div style={{ height: 24 }}></div>
             <div className="form-row">
               <label>Доступність</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {req.accessibility.map((tag) => (
+                {(payload.features || []).map((featureId) => (
                   <span
-                    key={tag}
+                    key={featureId}
                     style={{
                       background: "#17ccff",
                       color: "#fff",
@@ -182,7 +215,7 @@ export default function AdminEditRequest() {
                       fontSize: 14,
                     }}
                   >
-                    {tag}
+                    {getFeatureName(featureId)}
                   </span>
                 ))}
               </div>
@@ -208,9 +241,12 @@ export default function AdminEditRequest() {
             fontWeight: 700,
             minWidth: 200,
             padding: "14px 0",
-            cursor: "pointer",
+            cursor: actionLoading ? "not-allowed" : "pointer",
+            opacity: actionLoading ? 0.7 : 1,
             transition: "background 0.2s",
           }}
+          onClick={handleApprove}
+          disabled={actionLoading}
         >
           Схвалити
         </button>
@@ -224,9 +260,12 @@ export default function AdminEditRequest() {
             fontWeight: 700,
             minWidth: 200,
             padding: "14px 0",
-            cursor: "pointer",
+            cursor: actionLoading ? "not-allowed" : "pointer",
+            opacity: actionLoading ? 0.7 : 1,
             transition: "background 0.2s",
           }}
+          onClick={handleReject}
+          disabled={actionLoading}
         >
           Відхилити
         </button>

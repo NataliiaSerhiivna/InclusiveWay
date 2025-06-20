@@ -18,7 +18,6 @@ export default async function locationsRetriever(req) {
   };
 
   const locations = await locationModel.getLocations(filters);
-  console.log(locations);
   const result = {
     locations: [],
   };

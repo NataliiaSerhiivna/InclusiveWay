@@ -2,30 +2,17 @@ import React, { useEffect, useState } from "react";
 import "../../styles/Profile.css";
 import { useNavigate } from "react-router-dom";
 import { getProfile } from "../../api";
-import { getLocations } from "../../api";
 
 export default function Profile() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
-  const [userLocations, setUserLocations] = useState([]);
 
   useEffect(() => {
-    const token = localStorage.getItem("inclusive-way-google-jwt");
-    getProfile("")
+    getProfile()
       .then(setUser)
-      .catch((e) => setError(e.message));
+      .catch((e) => setError(e.toString()));
   }, []);
-
-  useEffect(() => {
-    if (!user || !user.id) return;
-    getLocations({ limit: 1000 })
-      .then((data) => {
-        const locations = data?.locations || data || [];
-        setUserLocations(locations.filter((loc) => loc.createdBy === user.id));
-      })
-      .catch(() => setUserLocations([]));
-  }, [user]);
 
   return (
     <div className="add-location-page">
@@ -47,25 +34,6 @@ export default function Profile() {
             <div className="form-row">
               <label>Роль</label>
               <div>{user.role}</div>
-            </div>
-            <div className="profile-locations-block">
-              <div
-                className="profile-locations-title"
-                style={{ fontWeight: 600, fontSize: 18, color: "#334059" }}
-              >
-                Додані Вами локації:
-              </div>
-              <ul className="profile-locations-list">
-                {userLocations.length === 0 ? (
-                  <li style={{ color: '#888' }}>Ви ще не додали жодної локації</li>
-                ) : (
-                  userLocations.map((loc) => (
-                    <li key={loc.id}>
-                      <b>{loc.name}</b> — {loc.address}
-                    </li>
-                  ))
-                )}
-              </ul>
             </div>
             <div className="form-actions">
               <button

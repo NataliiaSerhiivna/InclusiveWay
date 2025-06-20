@@ -40,8 +40,9 @@ export const addLocationEditRequest = async (req, res) => {
     res.status(201).send(camelcaseKeys(newEntry, { deep: true }));
     return;
   } catch (error) {
+    console.log(error);
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
   }
 };
 
@@ -52,12 +53,10 @@ export const getLocationEditRequest = async (req, res) => {
       res.status(500).send();
       return;
     }
-    //console.log(changes);
 
     const validatedChanges = locationEditRequestRetrieveSchema.parse(
       camelcaseKeys(changes, { deep: true })
     );
-    console.log(validatedChanges);
 
     const currentLocation = await locationModel.getById(changes.location_id);
     const newLocation = payloadIntoLocation(
@@ -70,13 +69,12 @@ export const getLocationEditRequest = async (req, res) => {
       currentLocation,
       newLocation,
     };
-    console.log(response);
 
     res.status(200).send(camelcaseKeys(response, { deep: true }));
     return;
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
     return;
   }
 };
@@ -88,7 +86,7 @@ export const deleteLocationEditRequest = async (req, res) => {
     return;
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
     return;
   }
 };
@@ -121,7 +119,6 @@ export const fulfillTheRequest = async (req, res) => {
       validatedRequest.locationId,
       changesToLocation
     );
-    console.log("here");
 
     await locationFeatureModel.updateForLocation(
       validatedRequest.locationId,
@@ -135,7 +132,7 @@ export const fulfillTheRequest = async (req, res) => {
     return;
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
     return;
   }
 };
@@ -154,7 +151,10 @@ export const getAllLocationEditRequests = async (req, res) => {
 
     const requests = await locationEditRequestModel.readMany(filters);
     const formattedRequests = camelcaseKeys(requests, { deep: true });
-    console.log(formattedRequests);
+    console.dir(formattedRequests, {
+      depth: null,
+      colors: true,
+    });
 
     const validatedRequests =
       locationEditRequestArrayFullSchema.parse(formattedRequests);
@@ -162,8 +162,12 @@ export const getAllLocationEditRequests = async (req, res) => {
     res.status(200).send(validatedRequests);
     return;
   } catch (error) {
+    console.dir(error, {
+      depth: null,
+      colors: true,
+    });
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
     return;
   }
 };

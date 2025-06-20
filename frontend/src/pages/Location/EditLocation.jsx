@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/Location.css";
-import { getEditRequest, getLocation, addEditRequest } from "../../api";
+import { getEditRequest, getLocation, addEditRequest, getFeatures } from "../../api";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const useQuery = () => new URLSearchParams(useLocation().search);
@@ -10,18 +10,10 @@ export default function EditLocation() {
     name: "",
     address: "",
     description: "",
-    accessibility: {
-      ramp: false,
-      elevator: false,
-      rails: false,
-      toilet: false,
-      baby: false,
-      wideDoors: false,
-      helpButton: false,
-      parking: false,
-    },
+    features: [],
     photo: null,
   });
+  const [allFeatures, setAllFeatures] = useState([]);
   const [photoURL, setPhotoURL] = useState("");
   const [photoDescription, setPhotoDescription] = useState("");
   const [locationLoaded, setLocationLoaded] = useState(false);
@@ -29,6 +21,10 @@ export default function EditLocation() {
   const query = useQuery();
   const id = query.get("id");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getFeatures().then(setAllFeatures).catch(() => setAllFeatures([]));
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -39,11 +35,12 @@ export default function EditLocation() {
           name: data.name || "",
           address: data.address || "",
           description: data.description || "",
+          features: data.features || [],
         }));
         if (data.photos && data.photos.length > 0) {
           const photoObj = data.photos[0];
           setPhotoURL(
-            photoObj.imageURL || photoObj.imageUrl || photoObj.image_url || ""
+            photoObj.imageUrl || photoObj.imageUrl || photoObj.image_url || ""
           );
           setPhotoDescription(photoObj.description || "");
         }
@@ -62,9 +59,10 @@ export default function EditLocation() {
           name: payload.name || f.name,
           address: payload.address || f.address,
           description: payload.description || f.description,
+          features: payload.features || f.features,
         }));
         if (payload.photosToAdd && payload.photosToAdd.length > 0) {
-          setPhotoURL(payload.photosToAdd[0].imageURL || photoURL);
+          setPhotoURL(payload.photosToAdd[0].imageUrl || photoURL);
           setPhotoDescription(
             payload.photosToAdd[0].description || photoDescription
           );
@@ -85,23 +83,14 @@ export default function EditLocation() {
       alert("Опис має містити не менше 10 символів");
       return;
     }
-    const features = [];
-    if (form.accessibility.ramp) features.push(1);
-    if (form.accessibility.elevator) features.push(2);
-    if (form.accessibility.rails) features.push(3);
-    if (form.accessibility.toilet) features.push(4);
-    if (form.accessibility.baby) features.push(5);
-    if (form.accessibility.wideDoors) features.push(6);
-    if (form.accessibility.helpButton) features.push(7);
-    if (form.accessibility.parking) features.push(8);
-    if (features.length === 0) {
+    if (form.features.length === 0) {
       alert("Оберіть хоча б одну опцію доступності");
       return;
     }
     const photosToAdd = photoURL
       ? [
           {
-            imageURL: photoURL,
+            imageUrl: photoURL,
             description: photoDescription,
             uploadedAt: new Date().toISOString(),
           },
@@ -110,7 +99,7 @@ export default function EditLocation() {
     const payload = {
       name: form.name,
       address: form.address,
-      features,
+      features: form.features,
       description: form.description,
       photosToAdd,
       photosToDelete: [],
@@ -121,6 +110,7 @@ export default function EditLocation() {
         comment: "Заявка на редагування локації",
         payload,
       });
+      navigate(-1);
     } catch (e) {
       if (e && e.message) {
         alert(e.message);
@@ -130,6 +120,15 @@ export default function EditLocation() {
         alert(e || "Помилка при створенні заявки");
       }
     }
+  };
+
+  const handleFeatureChange = (featureId) => {
+    setForm(prevForm => {
+      const features = prevForm.features.includes(featureId)
+        ? prevForm.features.filter(id => id !== featureId)
+        : [...prevForm.features, featureId];
+      return { ...prevForm, features };
+    });
   };
 
   return (
@@ -184,134 +183,16 @@ export default function EditLocation() {
         <div className="form-row">
           <label style={{ alignSelf: "flex-start" }}>Доступність</label>
           <div className="accessibility-checkboxes">
-            <label>
-              <input
-                type="checkbox"
-                checked={form.accessibility.ramp}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    accessibility: {
-                      ...form.accessibility,
-                      ramp: e.target.checked,
-                    },
-                  })
-                }
-              />{" "}
-              Пандус
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={form.accessibility.elevator}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    accessibility: {
-                      ...form.accessibility,
-                      elevator: e.target.checked,
-                    },
-                  })
-                }
-              />{" "}
-              Ліфт
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={form.accessibility.rails}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    accessibility: {
-                      ...form.accessibility,
-                      rails: e.target.checked,
-                    },
-                  })
-                }
-              />{" "}
-              Рейки для візків
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={form.accessibility.toilet}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    accessibility: {
-                      ...form.accessibility,
-                      toilet: e.target.checked,
-                    },
-                  })
-                }
-              />{" "}
-              Доступна вбиральня
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={form.accessibility.baby}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    accessibility: {
-                      ...form.accessibility,
-                      baby: e.target.checked,
-                    },
-                  })
-                }
-              />{" "}
-              Стіл для пеленання
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={form.accessibility.wideDoors}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    accessibility: {
-                      ...form.accessibility,
-                      wideDoors: e.target.checked,
-                    },
-                  })
-                }
-              />{" "}
-              Широкі двері
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={form.accessibility.helpButton}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    accessibility: {
-                      ...form.accessibility,
-                      helpButton: e.target.checked,
-                    },
-                  })
-                }
-              />{" "}
-              Кнопка виклику допомоги
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={form.accessibility.parking}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    accessibility: {
-                      ...form.accessibility,
-                      parking: e.target.checked,
-                    },
-                  })
-                }
-              />{" "}
-              Парковка для людей з інвалідністю
-            </label>
+            {allFeatures.map(feature => (
+              <label key={feature.id}>
+                <input
+                  type="checkbox"
+                  checked={form.features.includes(feature.id)}
+                  onChange={() => handleFeatureChange(feature.id)}
+                />{" "}
+                {feature.name}
+              </label>
+            ))}
           </div>
         </div>
         <div className="form-actions">

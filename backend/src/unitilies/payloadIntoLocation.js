@@ -77,4 +77,3 @@ const location = {
   createdBy: 2,
   comments: [],
 };
-//console.log(payloadIntoLocation(payload, location));

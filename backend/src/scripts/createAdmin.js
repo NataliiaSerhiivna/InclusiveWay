@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 const createAdmin = async (user) => {
   const validatedUser = userCreateSchema.parse(user);
   const hashedPassword = await bcrypt.hash(user.password, 10);
-  console.log("h@");
 
   await prisma.users.create({
     data: {

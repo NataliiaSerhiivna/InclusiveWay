@@ -67,9 +67,6 @@ function App() {
       }
       setMarkers(
         locations.map((loc) => {
-          if (loc.name === "Золоті ворота") {
-            console.log("Фото для Золоті ворота:", loc.photos);
-          }
           return {
             lat: loc.latitude,
             lng: loc.longitude,
@@ -84,10 +81,11 @@ function App() {
             }),
             image:
               loc.photos &&
-              (loc.photos[0]?.imageURL || loc.photos[0]?.image_url),
+              (loc.photos[0]?.imageUrl || loc.photos[0]?.image_url),
             comments: (loc.comments || []).map((c) => ({
+              ...c,
               userId: c.userId,
-              author: c.author || c.email || `User #${c.userId}`,
+              author: c.userName,
               text: c.text || c.content || "",
             })),
             id: loc.id,
@@ -154,7 +152,7 @@ function App() {
         const f = featuresList.find((f) => f.id === id);
         return f ? f.name : id;
       }),
-      image: loc.photos && loc.photos[0]?.imageURL,
+      image: loc.photos && loc.photos[0]?.imageUrl,
       comments: loc.comments || [],
       id: loc.id,
     }));

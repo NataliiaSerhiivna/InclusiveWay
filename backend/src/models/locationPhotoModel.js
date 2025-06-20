@@ -31,6 +31,5 @@ export default class LocationPhotoModel {
     const newPhotos = await prisma.locations_photos.createMany({
       data: photos,
     });
-    console.log(newPhotos);
   }
 }
