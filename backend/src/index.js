@@ -15,9 +15,22 @@ import editRequestRouter from "./routes/locationEditRequestRouter.js";
 const app = express();
 
 //Cors origins
+const allowedOrigins = [
+  "https://inclusivewayclient.onrender.com",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
-    origin: "https://inclusivewayclient.onrender.com",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
