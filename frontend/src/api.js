@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8080";
+const API_BASE = "https://inclusivewayserver.onrender.com";
 
 export async function authCallback(data) {
   return request("/auth", { method: "POST", body: data });
