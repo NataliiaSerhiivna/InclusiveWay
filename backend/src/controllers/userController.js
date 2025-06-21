@@ -75,7 +75,6 @@ export const authenticateUser = async (req, res) => {
       }
 
       delete user.password_hash;
-      delete user.role;
 
       res.status(200).send(user);
       return;

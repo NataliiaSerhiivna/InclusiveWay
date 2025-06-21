@@ -8,7 +8,7 @@ import {
   getFeatures,
 } from "../../api";
 
-export default function AdminEditRequest() {
+export default function AdminEditRequest({ language = "ua" }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -18,6 +18,47 @@ export default function AdminEditRequest() {
   const [features, setFeatures] = useState([]);
   const [actionLoading, setActionLoading] = useState(false);
 
+  const translations = {
+    ua: {
+      pageTitle: "Заявка на редагування локації",
+      requestNotFound: "Заявку не знайдено",
+      loadError: "Помилка завантаження",
+      approveError: "Помилка при схваленні",
+      rejectError: "Помилка при відхиленні",
+      featureTag: "Тег",
+      loading: "Завантаження...",
+      before: "Було:",
+      photo: "Фото",
+      name: "Назва",
+      address: "Адреса",
+      description: "Опис",
+      accessibility: "Доступність",
+      proposal: "Пропозиція:",
+      approve: "Схвалити",
+      reject: "Відхилити",
+    },
+    en: {
+      pageTitle: "Edit Location Request",
+      requestNotFound: "Request not found",
+      loadError: "Loading error",
+      approveError: "Error approving",
+      rejectError: "Error rejecting",
+      featureTag: "Tag",
+      loading: "Loading...",
+      before: "Before:",
+      photo: "Photo",
+      name: "Name",
+      address: "Address",
+      description: "Description",
+      accessibility: "Accessibility",
+      proposal: "Proposal:",
+      approve: "Approve",
+      reject: "Reject",
+    },
+  };
+
+  const t = translations[language];
+
   useEffect(() => {
     Promise.all([getEditRequest(id), getFeatures()])
       .then(([data, featuresList]) => {
@@ -25,7 +66,7 @@ export default function AdminEditRequest() {
         console.log("Отримані теги:", featuresList);
 
         if (!data || (!data.request && !data.location)) {
-          throw new Error("Заявку не знайдено");
+          throw new Error(t.requestNotFound);
         }
 
         setRequest(data.request);
@@ -35,10 +76,10 @@ export default function AdminEditRequest() {
       })
       .catch((e) => {
         console.error("Помилка при завантаженні:", e);
-        setError(e.message || "Помилка завантаження");
+        setError(e.message || t.loadError);
         setLoading(false);
       });
-  }, [id]);
+  }, [id, t.loadError, t.requestNotFound]);
 
   const handleApprove = async () => {
     setActionLoading(true);
@@ -53,7 +94,7 @@ export default function AdminEditRequest() {
       await applyEditRequest(id, requestData);
       navigate("/admin-page", { state: { activeTab: "edit" } });
     } catch (e) {
-      setError(e.message || "Помилка при схваленні");
+      setError(e.message || t.approveError);
     }
     setActionLoading(false);
   };
@@ -64,20 +105,20 @@ export default function AdminEditRequest() {
       await rejectEditRequest(id);
       navigate("/admin-page");
     } catch (e) {
-      setError(e.message || "Помилка при відхиленні");
+      setError(e.message || t.rejectError);
     }
     setActionLoading(false);
   };
 
   const getFeatureName = (featureId) => {
     const feature = features.find((f) => f.id === featureId);
-    return feature ? feature.name : `Тег ${featureId}`;
+    return feature ? feature.name : `${t.featureTag} ${featureId}`;
   };
 
-  if (loading) return <div style={{ padding: 40 }}>Завантаження...</div>;
+  if (loading) return <div style={{ padding: 40 }}>{t.loading}</div>;
   if (error) return <div style={{ padding: 40, color: "red" }}>{error}</div>;
   if (!request || !location)
-    return <div style={{ padding: 40 }}>Заявку не знайдено</div>;
+    return <div style={{ padding: 40 }}>{t.requestNotFound}</div>;
 
   const payload = request.payload || {};
 
@@ -85,7 +126,32 @@ export default function AdminEditRequest() {
 
   return (
     <div className="add-location-page">
-      <div className="add-location-header">Заявка на редагування локації</div>
+      <div
+        className="add-location-header"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+        }}
+      >
+        <button
+          onClick={() => navigate("/admin-page", { state: { activeTab: "edit" } })}
+          style={{
+            position: "absolute",
+            left: "20px",
+            background: "none",
+            border: "none",
+            fontSize: "30px",
+            cursor: "pointer",
+            padding: "0 15px",
+            color: "white",
+          }}
+        >
+          &larr;
+        </button>
+        {t.pageTitle}
+      </div>
       <div
         className="add-location-form"
         style={{ maxWidth: 900, marginTop: 32 }}
@@ -108,14 +174,14 @@ export default function AdminEditRequest() {
                 color: "#334059",
               }}
             >
-              Було:
+              {t.before}
             </div>
             <div className="form-row">
-              <label>Фото</label>
+              <label>{t.photo}</label>
               {location && location.photos && location.photos[0] && (
                 <img
                   src={location.photos[0].imageUrl}
-                  alt="Було"
+                  alt={t.before}
                   style={{
                     width: 140,
                     height: 90,
@@ -128,19 +194,19 @@ export default function AdminEditRequest() {
               )}
             </div>
             <div className="form-row" style={{ marginBottom: 10 }}>
-              <label>Назва</label>
+              <label>{t.name}</label>
               <div>{location && location.name}</div>
             </div>
             <div className="form-row" style={{ marginBottom: 10 }}>
-              <label>Адреса</label>
+              <label>{t.address}</label>
               <div>{location && location.address}</div>
             </div>
             <div className="form-row" style={{ marginBottom: 18 }}>
-              <label>Опис</label>
+              <label>{t.description}</label>
               <div>{location && location.description}</div>
             </div>
             <div className="form-row">
-              <label>Доступність</label>
+              <label>{t.accessibility}</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {(location.features || []).map((featureId) => (
                   <span
@@ -169,14 +235,14 @@ export default function AdminEditRequest() {
                 color: "#334059",
               }}
             >
-              Пропозиція:
+              {t.proposal}
             </div>
             <div className="form-row">
-              <label>Фото</label>
+              <label>{t.photo}</label>
               {payload && payload.photosToAdd && payload.photosToAdd[0] && (
                 <img
                   src={payload.photosToAdd[0].imageUrl}
-                  alt="Стало"
+                  alt={t.proposal}
                   style={{
                     width: 140,
                     height: 90,
@@ -189,19 +255,19 @@ export default function AdminEditRequest() {
               )}
             </div>
             <div className="form-row" style={{ marginBottom: 10 }}>
-              <label>Назва</label>
+              <label>{t.name}</label>
               <div>{payload && payload.name}</div>
             </div>
             <div className="form-row" style={{ marginBottom: 10 }}>
-              <label>Адреса</label>
+              <label>{t.address}</label>
               <div>{payload && payload.address}</div>
             </div>
             <div className="form-row" style={{ marginBottom: 18 }}>
-              <label>Опис</label>
+              <label>{t.description}</label>
               <div>{payload && payload.description}</div>
             </div>
             <div className="form-row">
-              <label>Доступність</label>
+              <label>{t.accessibility}</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {(payload.features || []).map((featureId) => (
                   <span
@@ -248,7 +314,7 @@ export default function AdminEditRequest() {
           onClick={handleApprove}
           disabled={actionLoading}
         >
-          Схвалити
+          {t.approve}
         </button>
         <button
           style={{
@@ -267,7 +333,7 @@ export default function AdminEditRequest() {
           onClick={handleReject}
           disabled={actionLoading}
         >
-          Відхилити
+          {t.reject}
         </button>
       </div>
     </div>

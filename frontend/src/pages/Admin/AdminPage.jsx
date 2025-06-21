@@ -8,7 +8,7 @@ import {
   getUsers,
 } from "../../api";
 
-export default function AdminPage() {
+export default function AdminPage({ language = "ua", toggleLanguage }) {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || "add");
   const navigate = useNavigate();
@@ -19,6 +19,65 @@ export default function AdminPage() {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const translations = {
+    ua: {
+      logout: "Вийти",
+      profile: "Профіль",
+      tabs: {
+        add: "Заявки на додавання локацій",
+        edit: "Заявки на редагування локацій",
+        locations: "Локації",
+        users: "Користувачі",
+      },
+      listTitles: {
+        add: "Заявки на додавання локацій",
+        edit: "Заявки на редагування локацій",
+        locations: "Всі локації",
+        users: "Всі користувачі",
+      },
+      loading: "Завантаження...",
+      noAddRequests: "Немає заявок",
+      noEditRequests: "Немає заявок",
+      noLocations: "Немає локацій",
+      noUsers: "Немає користувачів",
+      userRole: "Роль:",
+      roleRegistered: "Зареєстрований користувач",
+      roleAdmin: "Адміністратор",
+    },
+    en: {
+      logout: "Logout",
+      profile: "Profile",
+      tabs: {
+        add: "Add Location Requests",
+        edit: "Edit Location Requests",
+        locations: "Locations",
+        users: "Users",
+      },
+      listTitles: {
+        add: "Add Location Requests",
+        edit: "Edit Location Requests",
+        locations: "All Locations",
+        users: "All Users",
+      },
+      loading: "Loading...",
+      noAddRequests: "No requests",
+      noEditRequests: "No requests",
+      noLocations: "No locations",
+      noUsers: "No users",
+      userRole: "Role:",
+      roleRegistered: "Registered User",
+      roleAdmin: "Administrator",
+    },
+  };
+
+  const t = translations[language];
+
+  const translateRole = (role) => {
+    if (role === "Зареєстрований користувач") return t.roleRegistered;
+    if (role === "Адміністратор") return t.roleAdmin;
+    return role;
+  };
 
   useEffect(() => {
     if (activeTab === "add") {
@@ -94,7 +153,9 @@ export default function AdminPage() {
         <div className="header">
           <div className="logo">InclusiveWay</div>
           <div className="header-btns">
-            <button className="lang-btn">UA</button>
+            <button className="lang-btn" onClick={toggleLanguage}>
+              {language === "ua" ? "EN" : "UA"}
+            </button>
             <button
               className="login-btn"
               onClick={() => {
@@ -103,13 +164,13 @@ export default function AdminPage() {
                 window.location.reload();
               }}
             >
-              Вийти
+              {t.logout}
             </button>
             <button
               className="profile-btn"
               onClick={() => navigate("/profile")}
             >
-              Профіль
+              {t.profile}
             </button>
           </div>
         </div>
@@ -126,7 +187,7 @@ export default function AdminPage() {
               className={`admin-tab-btn${activeTab === "add" ? " active" : ""}`}
               onClick={() => setActiveTab("add")}
             >
-              Заявки на додавання локацій
+              {t.tabs.add}
             </button>
             <button
               className={`admin-tab-btn${
@@ -134,7 +195,7 @@ export default function AdminPage() {
               }`}
               onClick={() => setActiveTab("edit")}
             >
-              Заявки на редагування локацій
+              {t.tabs.edit}
             </button>
             <button
               className={`admin-tab-btn${
@@ -142,7 +203,7 @@ export default function AdminPage() {
               }`}
               onClick={() => setActiveTab("locations")}
             >
-              Локації
+              {t.tabs.locations}
             </button>
             <button
               className={`admin-tab-btn${
@@ -150,18 +211,18 @@ export default function AdminPage() {
               }`}
               onClick={() => setActiveTab("users")}
             >
-              Користувачі
+              {t.tabs.users}
             </button>
           </div>
           {activeTab === "add" && (
             <div className="admin-list-block">
-              <h3>Заявки на додавання локацій</h3>
+              <h3>{t.listTitles.add}</h3>
               {loading ? (
-                <div>Завантаження...</div>
+                <div>{t.loading}</div>
               ) : error ? (
                 <div style={{ color: "red" }}>{error}</div>
               ) : addRequests.length === 0 ? (
-                <div>Немає заявок</div>
+                <div>{t.noAddRequests}</div>
               ) : (
                 <ul>
                   {addRequests.map((req) => (
@@ -183,13 +244,13 @@ export default function AdminPage() {
           )}
           {activeTab === "edit" && (
             <div className="admin-list-block">
-              <h3>Заявки на редагування локацій</h3>
+              <h3>{t.listTitles.edit}</h3>
               {loading ? (
-                <div>Завантаження...</div>
+                <div>{t.loading}</div>
               ) : error ? (
                 <div style={{ color: "red" }}>{error}</div>
               ) : editRequests.length === 0 ? (
-                <div>Немає заявок</div>
+                <div>{t.noEditRequests}</div>
               ) : (
                 <ul>
                   {editRequests.map((req) => (
@@ -219,13 +280,13 @@ export default function AdminPage() {
                 console.log(locations);
               }}
             >
-              <h3>Всі локації</h3>
+              <h3>{t.listTitles.locations}</h3>
               {loading ? (
-                <div>Завантаження...</div>
+                <div>{t.loading}</div>
               ) : error ? (
                 <div style={{ color: "red" }}>{error}</div>
               ) : locations.length === 0 ? (
-                <div>Немає локацій</div>
+                <div>{t.noLocations}</div>
               ) : (
                 <ul>
                   {locations.map((loc) => (
@@ -253,13 +314,13 @@ export default function AdminPage() {
           )}
           {activeTab === "users" && (
             <div className="admin-list-block">
-              <h3>Всі користувачі</h3>
+              <h3>{t.listTitles.users}</h3>
               {loading ? (
-                <div>Завантаження...</div>
+                <div>{t.loading}</div>
               ) : error ? (
                 <div style={{ color: "red" }}>{error}</div>
               ) : users.length === 0 ? (
-                <div>Немає користувачів</div>
+                <div>{t.noUsers}</div>
               ) : (
                 <ul>
                   {users.map((user) => (
@@ -293,7 +354,7 @@ export default function AdminPage() {
                             marginTop: 2,
                           }}
                         >
-                          <span style={{ fontWeight: 700 }}>Роль:</span>{" "}
+                          <span style={{ fontWeight: 700 }}>{t.userRole}</span>{" "}
                           {editRoleId === user.id ? (
                             <select
                               value={user.role}
@@ -309,14 +370,16 @@ export default function AdminPage() {
                               }}
                             >
                               <option value="Зареєстрований користувач">
-                                Зареєстрований користувач
+                                {t.roleRegistered}
                               </option>
                               <option value="Адміністратор">
-                                Адміністратор
+                                {t.roleAdmin}
                               </option>
                             </select>
                           ) : (
-                            <span style={{ fontWeight: 400 }}>{user.role}</span>
+                            <span style={{ fontWeight: 400 }}>
+                              {translateRole(user.role)}
+                            </span>
                           )}
                         </span>
                       </div>

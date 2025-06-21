@@ -3,7 +3,7 @@ import "../../styles/Admin.css";
 import { useParams, useNavigate } from "react-router-dom";
 import { getLocation, editLocation, getFeatures } from "../../api";
 
-export default function AdminLocationEdit() {
+export default function AdminLocationEdit({ language = "ua" }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -14,9 +14,47 @@ export default function AdminLocationEdit() {
     description: "",
     accessibility: [],
   });
+  const [initialForm, setInitialForm] = useState(null);
   const [allFeatures, setAllFeatures] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const translations = {
+    ua: {
+      pageTitle: "Редагування локації",
+      loading: "Завантаження...",
+      loadError: "Помилка завантаження локації",
+      saveError: "Помилка збереження",
+      photoLabel: "Фото",
+      photoUrlPlaceholder: "Вставте посилання на фото",
+      photoDescriptionPlaceholder: "Опис фото",
+      nameLabel: "Назва",
+      addressLabel: "Адреса",
+      descriptionLabel: "Опис",
+      accessibilityLabel: "Доступність",
+      cancelButton: "Скасувати",
+      saveButton: "Зберегти",
+      noChanges: "Ви не внесли жодних змін",
+    },
+    en: {
+      pageTitle: "Edit Location",
+      loading: "Loading...",
+      loadError: "Error loading location",
+      saveError: "Error saving",
+      photoLabel: "Photo",
+      photoUrlPlaceholder: "Insert photo link",
+      photoDescriptionPlaceholder: "Photo description",
+      nameLabel: "Name",
+      addressLabel: "Address",
+      descriptionLabel: "Description",
+      accessibilityLabel: "Accessibility",
+      cancelButton: "Cancel",
+      saveButton: "Save",
+      noChanges: "You have not made any changes",
+    },
+  };
+
+  const t = translations[language];
 
   useEffect(() => {
     setLoading(true);
@@ -31,7 +69,7 @@ export default function AdminLocationEdit() {
           })
           .filter(Boolean);
 
-        setForm({
+        const loadedForm = {
           photo:
             (data.photos &&
               data.photos[0] &&
@@ -46,14 +84,16 @@ export default function AdminLocationEdit() {
           address: data.address || "",
           description: data.description || "",
           accessibility: accessibilityNames,
-        });
+        };
+        setForm(loadedForm);
+        setInitialForm(loadedForm);
         setLoading(false);
       })
       .catch((e) => {
-        setError(e.message || "Помилка завантаження локації");
+        setError(e.message || t.loadError);
         setLoading(false);
       });
-  }, [id]);
+  }, [id, t.loadError]);
 
   const handleTagToggle = (tag) => {
     setForm((f) =>
@@ -66,6 +106,29 @@ export default function AdminLocationEdit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (initialForm) {
+      const arraysAreEqual = (a, b) => {
+        if (a.length !== b.length) return false;
+        const sortedA = [...a].sort();
+        const sortedB = [...b].sort();
+        return sortedA.every((val, index) => val === sortedB[index]);
+      };
+
+      const noChanges =
+        initialForm.photo === form.photo &&
+        initialForm.photoDescription === form.photoDescription &&
+        initialForm.name === form.name &&
+        initialForm.address === form.address &&
+        initialForm.description === form.description &&
+        arraysAreEqual(initialForm.accessibility, form.accessibility);
+
+      if (noChanges) {
+        setError(t.noChanges);
+        return;
+      }
+    }
+
     try {
       const features = allFeatures
         .map((feature) =>
@@ -90,29 +153,30 @@ export default function AdminLocationEdit() {
       });
       navigate(-1);
     } catch (e) {
-      setError(e.message || "Помилка збереження");
+      setError(e.message || t.saveError);
     }
   };
 
-  if (loading) return <div style={{ padding: 40 }}>Завантаження...</div>;
-  if (error) return <div style={{ padding: 40, color: "red" }}>{error}</div>;
+  if (loading) return <div style={{ padding: 40 }}>{t.loading}</div>;
+  if (error && !initialForm)
+    return <div style={{ padding: 40, color: "red" }}>{error}</div>;
 
   return (
     <div className="add-location-page">
-      <div className="add-location-header">Редагування локації</div>
+      <div className="add-location-header">{t.pageTitle}</div>
       <form
         className="add-location-form"
         style={{ maxWidth: 700, marginTop: 32 }}
         onSubmit={handleSubmit}
       >
         <div className="form-row">
-          <label>Фото</label>
+          <label>{t.photoLabel}</label>
           <div
             style={{ display: "flex", flexDirection: "column", width: "100%" }}
           >
             <input
               type="text"
-              placeholder="Вставте посилання на фото"
+              placeholder={t.photoUrlPlaceholder}
               value={form.photo}
               onChange={(e) =>
                 setForm((f) => ({ ...f, photo: e.target.value }))
@@ -120,7 +184,7 @@ export default function AdminLocationEdit() {
               style={{ width: "97%", marginBottom: 8 }}
             />
             <textarea
-              placeholder="Опис фото"
+              placeholder={t.photoDescriptionPlaceholder}
               value={form.photoDescription}
               onChange={(e) =>
                 setForm((f) => ({ ...f, photoDescription: e.target.value }))
@@ -131,7 +195,7 @@ export default function AdminLocationEdit() {
           </div>
         </div>
         <div className="form-row">
-          <label>Назва</label>
+          <label>{t.nameLabel}</label>
           <textarea
             rows={2}
             value={form.name}
@@ -139,7 +203,7 @@ export default function AdminLocationEdit() {
           />
         </div>
         <div className="form-row">
-          <label>Адреса</label>
+          <label>{t.addressLabel}</label>
           <textarea
             rows={2}
             value={form.address}
@@ -149,7 +213,7 @@ export default function AdminLocationEdit() {
           />
         </div>
         <div className="form-row">
-          <label>Опис</label>
+          <label>{t.descriptionLabel}</label>
           <textarea
             rows={2}
             value={form.description}
@@ -159,7 +223,7 @@ export default function AdminLocationEdit() {
           />
         </div>
         <div className="form-row">
-          <label style={{ alignSelf: "flex-start" }}>Доступність</label>
+          <label style={{ alignSelf: "flex-start" }}>{t.accessibilityLabel}</label>
           <div className="accessibility-checkboxes">
             {allFeatures.map((feature) => (
               <label key={feature.id}>
@@ -173,16 +237,21 @@ export default function AdminLocationEdit() {
             ))}
           </div>
         </div>
+        {error && (
+          <div style={{ color: "red", marginBottom: 10, textAlign: "center" }}>
+            {error}
+          </div>
+        )}
         <div className="form-actions">
           <button
             type="button"
             className="cancel-btn"
             onClick={() => navigate(-1)}
           >
-            Скасувати
+            {t.cancelButton}
           </button>
           <button type="submit" className="submit-btn">
-            Зберегти
+            {t.saveButton}
           </button>
         </div>
       </form>

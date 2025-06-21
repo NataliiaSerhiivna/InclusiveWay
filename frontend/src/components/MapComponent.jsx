@@ -19,13 +19,13 @@ import { useNavigate } from "react-router-dom";
 import "../styles/MapComponent.css";
 import { addComment, getComments, getUsers } from "../api";
 
-const MapClickHandler = ({ onMapClick }) => {
+const MapClickHandler = ({ onMapClick, customPointLabel }) => {
   useMapEvents({
     click(e) {
       const newPoint = {
         lat: e.latlng.lat,
         lng: e.latlng.lng,
-        label: "Custom Point",
+        label: customPointLabel,
       };
       onMapClick(newPoint);
     },
@@ -78,6 +78,7 @@ const MapComponent = ({
   onMarkerClick,
   user,
   center,
+  language = "ua",
 }) => {
   const [showCommentForm, setShowCommentForm] = useState({});
   const [commentText, setCommentText] = useState("");
@@ -85,6 +86,41 @@ const MapComponent = ({
   const [commentSuccess, setCommentSuccess] = useState("");
   const [usernamesMap, setUsernamesMap] = useState({});
   const navigate = useNavigate();
+
+  const translations = {
+    ua: {
+      addressUnknown: "Адреса невідома",
+      descriptionMissing: "Опис відсутній",
+      tagsMissing: "Теги відсутні",
+      comments: "Коментарі:",
+      noComments: "Коментарів ще немає",
+      addComment: "Додати коментар",
+      yourCommentPlaceholder: "Ваш коментар...",
+      publishComment: "Опублікувати коментар",
+      loginToAddCommentError: "Щоб додати коментар, увійдіть у систему.",
+      commentAddedSuccess: "Коментар додано!",
+      editLocation: "Редагувати локацію",
+      customPoint: "Користувацька точка",
+      removePoint: "Прибрати точку",
+    },
+    en: {
+      addressUnknown: "Address unknown",
+      descriptionMissing: "No description",
+      tagsMissing: "No tags",
+      comments: "Comments:",
+      noComments: "No comments yet",
+      addComment: "Add a comment",
+      yourCommentPlaceholder: "Your comment...",
+      publishComment: "Publish comment",
+      loginToAddCommentError: "Please log in to add a comment.",
+      commentAddedSuccess: "Comment added successfully!",
+      editLocation: "Edit location",
+      customPoint: "Custom point",
+      removePoint: "Remove point",
+    },
+  };
+
+  const t = translations[language];
 
   useEffect(() => {
     getUsers({ limit: 1000 }).then((res) => {
@@ -118,253 +154,293 @@ const MapComponent = ({
           }}
         >
           <Popup>
-            <div style={{ minWidth: 220, maxWidth: 320 }}>
-              {point.image && (
-                <img
-                  src={point.image}
-                  alt={point.label}
-                  style={{
-                    width: "100%",
-                    height: 140,
-                    objectFit: "cover",
-                    borderRadius: 12,
-                    marginBottom: 10,
-                  }}
-                />
-              )}
-              <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 4 }}>
-                {point.label}
-              </div>
-              <div
-                style={{
-                  fontStyle: "italic",
-                  color: "#808c8c",
-                  marginBottom: 8,
-                  fontSize: 18,
-                }}
-              >
-                {point.address || "Адреса невідома"}
-              </div>
-              <div style={{ marginBottom: 10, color: "#575757", fontSize: 17 }}>
-                {point.description || "Опис відсутній"}
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {(point.tags || []).length > 0 ? (
-                  point.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      style={{
-                        background: "#17ccff",
-                        color: "#fff",
-                        borderRadius: 12,
-                        padding: "4px 12px",
-                        fontSize: 13,
-                        fontWeight: 700,
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))
-                ) : (
-                  <span style={{ color: "#bdbdbd", fontSize: 13 }}>
-                    Теги відсутні
-                  </span>
+            {point.id ? (
+              <div style={{ minWidth: 220, maxWidth: 320 }}>
+                {point.image && (
+                  <img
+                    src={point.image}
+                    alt={point.label}
+                    style={{
+                      width: "100%",
+                      height: 140,
+                      objectFit: "cover",
+                      borderRadius: 12,
+                      marginBottom: 10,
+                    }}
+                  />
                 )}
-              </div>
-              <div style={{ marginTop: 12 }}>
-                <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 4 }}>
-                  Коментарі:
+                <div
+                  style={{ fontWeight: 700, fontSize: 22, marginBottom: 4 }}
+                >
+                  {point.label}
                 </div>
                 <div
                   style={{
-                    maxHeight: 90,
-                    overflowY: "auto",
-                    background: "#f7fbff",
-                    borderRadius: 8,
-                    padding: "6px 8px",
+                    fontStyle: "italic",
+                    color: "#808c8c",
+                    marginBottom: 8,
+                    fontSize: 18,
                   }}
                 >
-                  {point.comments && point.comments.length > 0 ? (
-                    point.comments.map((comment, i) => (
-                      <div
+                  {point.address || t.addressUnknown}
+                </div>
+                <div
+                  style={{ marginBottom: 10, color: "#575757", fontSize: 17 }}
+                >
+                  {point.description || t.descriptionMissing}
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {(point.tags || []).length > 0 ? (
+                    point.tags.map((tag, i) => (
+                      <span
                         key={i}
                         style={{
-                          marginBottom: 8,
-                          fontSize: 14,
-                          color: "#334059",
+                          background: "#17ccff",
+                          color: "#fff",
+                          borderRadius: 12,
+                          padding: "4px 12px",
+                          fontSize: 13,
+                          fontWeight: 700,
                         }}
-                        onClick={() => console.log(comment)}
                       >
-                        <b>{comment.userName}:</b> {comment.text}
-                      </div>
+                        {tag}
+                      </span>
                     ))
                   ) : (
-                    <div style={{ color: "#bdbdbd", fontSize: 14 }}>
-                      Коментарів ще немає
-                    </div>
+                    <span style={{ color: "#bdbdbd", fontSize: 13 }}>
+                      {t.tagsMissing}
+                    </span>
                   )}
                 </div>
-                {user && (
-                  <>
-                    <button
-                      className="add-comment-btn"
-                      style={{
-                        marginTop: 10,
-                        width: "100%",
-                        background: "#00c853",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: 12,
-                        fontSize: 16,
-                        fontWeight: 700,
-                        height: 40,
-                        cursor: "pointer",
-                      }}
-                      onClick={() =>
-                        setShowCommentForm({
-                          ...showCommentForm,
-                          [idx]: !showCommentForm[idx],
-                        })
-                      }
-                    >
-                      Додати коментар
-                    </button>
-                    {showCommentForm[idx] && (
-                      <div style={{ marginTop: 10 }}>
-                        <textarea
-                          value={commentText}
-                          onChange={(e) => setCommentText(e.target.value)}
-                          rows={3}
+                <div style={{ marginTop: 12 }}>
+                  <div
+                    style={{ fontWeight: 600, fontSize: 15, marginBottom: 4 }}
+                  >
+                    {t.comments}
+                  </div>
+                  <div
+                    style={{
+                      maxHeight: 90,
+                      overflowY: "auto",
+                      background: "#f7fbff",
+                      borderRadius: 8,
+                      padding: "6px 8px",
+                    }}
+                  >
+                    {point.comments && point.comments.length > 0 ? (
+                      point.comments.map((comment, i) => (
+                        <div
+                          key={i}
                           style={{
-                            width: "100%",
-                            borderRadius: 8,
-                            border: "1px solid #ccc",
-                            padding: 8,
-                            fontSize: 15,
-                            resize: "none",
                             marginBottom: 8,
+                            fontSize: 14,
+                            color: "#334059",
                           }}
-                          placeholder="Ваш коментар..."
-                        />
-                        <button
-                          style={{
-                            width: "100%",
-                            background: "#17ccff",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: 12,
-                            fontSize: 16,
-                            fontWeight: 700,
-                            height: 40,
-                            cursor: "pointer",
-                          }}
-                          onClick={async () => {
-                            setCommentError("");
-                            setCommentSuccess("");
-                            if (!user) {
-                              setCommentError(
-                                "Щоб додати коментар, увійдіть у систему."
-                              );
-                              return;
-                            }
-                            try {
-                              let token = localStorage.getItem(
-                                "inclusive-way-google-jwt"
-                              );
-                              if (token) {
-                                try {
-                                  const parsed = JSON.parse(token);
-                                  token = undefined;
-                                } catch {}
-                              }
-                              if (typeof token !== "string") token = undefined;
-                              await addComment(
-                                point.id,
-                                {
-                                  content: commentText,
-                                  createdAt: new Date().toISOString(),
-                                },
-                                token
-                              );
-                              const response = await getComments(point.id);
-                              if (setMarkers) {
-                                setMarkers((prev) =>
-                                  prev.map((m, i) =>
-                                    i === idx
-                                      ? {
-                                          ...m,
-                                          comments: response.comments.map(
-                                            (c) => ({
-                                              ...c,
-                                              userId: c.userId,
-                                              text: c.content,
-                                            })
-                                          ),
-                                        }
-                                      : m
-                                  )
-                                );
-                              }
-                              setCommentText("");
-                              setCommentSuccess("Коментар додано!");
-                              setTimeout(
-                                () =>
-                                  setShowCommentForm((f) => ({
-                                    ...f,
-                                    [idx]: false,
-                                  })),
-                                1000
-                              );
-                            } catch (e) {
-                              setCommentError(e.message);
-                            }
-                          }}
+                          onClick={() => console.log(comment)}
                         >
-                          Опублікувати коментар
-                        </button>
+                          <b>{comment.userName}:</b> {comment.text}
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ color: "#bdbdbd", fontSize: 14 }}>
+                        {t.noComments}
                       </div>
                     )}
-                    {commentError && (
-                      <div style={{ color: "red", marginTop: 5 }}>
-                        {commentError}
-                      </div>
-                    )}
-                    {commentSuccess && (
-                      <div style={{ color: "green", marginTop: 5 }}>
-                        {commentSuccess}
-                      </div>
-                    )}
-                  </>
+                  </div>
+                  {user && (
+                    <>
+                      <button
+                        className="add-comment-btn"
+                        style={{
+                          marginTop: 10,
+                          width: "100%",
+                          background: "#00c853",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 12,
+                          fontSize: 16,
+                          fontWeight: 700,
+                          height: 40,
+                          cursor: "pointer",
+                        }}
+                        onClick={() =>
+                          setShowCommentForm({
+                            ...showCommentForm,
+                            [idx]: !showCommentForm[idx],
+                          })
+                        }
+                      >
+                        {t.addComment}
+                      </button>
+                      {showCommentForm[idx] && (
+                        <div style={{ marginTop: 10 }}>
+                          <textarea
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                            rows={3}
+                            style={{
+                              width: "100%",
+                              borderRadius: 8,
+                              border: "1px solid #ccc",
+                              padding: 8,
+                              fontSize: 15,
+                              resize: "none",
+                              marginBottom: 8,
+                            }}
+                            placeholder={t.yourCommentPlaceholder}
+                          />
+                          <button
+                            style={{
+                              width: "100%",
+                              background: "#17ccff",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: 12,
+                              fontSize: 16,
+                              fontWeight: 700,
+                              height: 40,
+                              cursor: "pointer",
+                            }}
+                            onClick={async () => {
+                              setCommentError("");
+                              setCommentSuccess("");
+                              if (!user) {
+                                setCommentError(t.loginToAddCommentError);
+                                return;
+                              }
+                              try {
+                                let token = localStorage.getItem(
+                                  "inclusive-way-google-jwt"
+                                );
+                                if (token) {
+                                  try {
+                                    const parsed = JSON.parse(token);
+                                    token = undefined;
+                                  } catch {}
+                                }
+                                if (typeof token !== "string")
+                                  token = undefined;
+                                await addComment(
+                                  point.id,
+                                  {
+                                    content: commentText,
+                                    createdAt: new Date().toISOString(),
+                                  },
+                                  token
+                                );
+                                const response = await getComments(point.id);
+                                if (setMarkers) {
+                                  setMarkers((prev) =>
+                                    prev.map((m, i) =>
+                                      i === idx
+                                        ? {
+                                            ...m,
+                                            comments: response.comments.map(
+                                              (c) => ({
+                                                ...c,
+                                                userId: c.userId,
+                                                text: c.content,
+                                              })
+                                            ),
+                                          }
+                                        : m
+                                    )
+                                  );
+                                }
+                                setCommentText("");
+                                setCommentSuccess(t.commentAddedSuccess);
+                                setTimeout(
+                                  () =>
+                                    setShowCommentForm((f) => ({
+                                      ...f,
+                                      [idx]: false,
+                                    })),
+                                  1000
+                                );
+                              } catch (e) {
+                                setCommentError(e.message);
+                              }
+                            }}
+                          >
+                            {t.publishComment}
+                          </button>
+                        </div>
+                      )}
+                      {commentError && (
+                        <div style={{ color: "red", marginTop: 5 }}>
+                          {commentError}
+                        </div>
+                      )}
+                      {commentSuccess && (
+                        <div style={{ color: "green", marginTop: 5 }}>
+                          {commentSuccess}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                {point && user && (
+                  <button
+                    className="edit-location-btn"
+                    style={{
+                      marginTop: 12,
+                      width: "100%",
+                      background: "#0030C0",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 12,
+                      fontSize: 16,
+                      fontWeight: 700,
+                      height: 40,
+                      cursor: "pointer",
+                    }}
+                    onClick={() =>
+                      navigate(`/edit-location-request?id=${point.id}`)
+                    }
+                  >
+                    {t.editLocation}
+                  </button>
                 )}
               </div>
-              {point && user && (
-                <button
-                  className="edit-location-btn"
+            ) : (
+              <div>
+                <div
                   style={{
-                    marginTop: 12,
-                    width: "100%",
-                    background: "#0030C0",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 12,
-                    fontSize: 16,
-                    fontWeight: 700,
-                    height: 40,
-                    cursor: "pointer",
+                    fontWeight: "bold",
+                    fontSize: "18px",
+                    marginBottom: "10px",
                   }}
-                  onClick={() =>
-                    navigate(`/edit-location-request?id=${point.id}`)
-                  }
                 >
-                  Редагувати локацію
+                  {t.customPoint}
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMarkers(markers.filter((m) => m.id));
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    background: "#ff4d4d",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {t.removePoint}
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </Popup>
         </Marker>
       ))}
       {routePoints.length > 1 && <RoutingMachine waypoints={routePoints} />}
-      <MapClickHandler onMapClick={onMapClick} />
+      <MapClickHandler
+        onMapClick={onMapClick}
+        customPointLabel={t.customPoint}
+      />
     </MapContainer>
   );
 };
