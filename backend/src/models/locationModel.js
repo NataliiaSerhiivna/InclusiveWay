@@ -1,3 +1,5 @@
+// Модель для роботи з локаціями в базі даних
+
 import { PrismaClient } from "@prisma/client";
 import { camelToSnakeCase } from "../unitilies/camelSnakeModifications.js";
 import { locationFullSchema } from "../schemas/locationSchema.js";

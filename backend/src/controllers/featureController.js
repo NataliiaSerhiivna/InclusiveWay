@@ -1,3 +1,5 @@
+// Контролер для фіч ексклюзивності
+
 import FeatureModel from "../models/featureModel.js";
 
 const featureModel = new FeatureModel();

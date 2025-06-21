@@ -14,6 +14,7 @@ import userRouter from "./routes/userRouter.js";
 import editRequestRouter from "./routes/locationEditRequestRouter.js";
 const app = express();
 
+//Cors origins
 app.use(
   cors({
     origin: "https://inclusivewayclient.onrender.com",
@@ -23,7 +24,7 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
-
+// Routers
 app.use("/locations", locationsRouter);
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
@@ -33,10 +34,13 @@ app.use("/photos", photosRouter);
 app.use("/profile", profileRouter);
 app.use("/users", userRouter);
 app.use("/location-edit-requests", editRequestRouter);
+
+// Parseing of cookies
 app.use(cookieParser());
 
 const PORT = process.env.PORT || 8080;
 
+// Starting of the server
 app.listen(PORT, () =>
   console.log(`server is running on http://localhost:${PORT}`)
 );

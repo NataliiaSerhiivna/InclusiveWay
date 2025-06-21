@@ -1,3 +1,5 @@
+// Функція для отримання списку локації з бд
+
 import LocationModel from "../models/locationModel.js";
 import { locationFullSchema } from "../schemas/locationSchema.js";
 import fromDbToJSON from "./locationConverter.js";

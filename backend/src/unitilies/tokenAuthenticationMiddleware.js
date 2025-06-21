@@ -1,3 +1,5 @@
+// Методи для автентифікації jwt токенів
+
 import UserserModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 

@@ -1,3 +1,5 @@
+// Контролер для видалення фотографій
+
 import LocationPhotoModel from "../models/locationPhotoModel.js";
 const locationPhotoModel = new LocationPhotoModel();
 
