@@ -74,17 +74,13 @@ export default function AddLocation() {
         features: form.features,
         photos: [
           {
-            imageURL: photoURL,
+            imageUrl: photoURL,
             description: photoDescription,
             uploadedAt: new Date().toISOString(),
           },
         ],
         createdBy: userId,
       });
-
-      const jsonResp = await resp.json();
-
-      //console.log(jsonResp);
 
       setSuccess(true);
       setForm({

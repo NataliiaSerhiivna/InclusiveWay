@@ -33,7 +33,7 @@ export default function EditProfile() {
     setError("");
     setSuccess(false);
     try {
-      await updateProfile({ username: form.name, email: form.email });
+      await updateProfile({ username: form.name });
       setSuccess(true);
       const updated = await getProfile();
       setForm({
@@ -41,7 +41,7 @@ export default function EditProfile() {
         email: updated.email || "",
         role: updated.role || "Зареєстрований користувач",
       });
-      navigate('/profile');
+      navigate(-1);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -56,31 +56,23 @@ export default function EditProfile() {
         <div className="form-row">
           <label>Імʼя</label>
           <textarea
-            rows={2}
+            rows={1}
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
         </div>
         <div className="form-row">
           <label>Пошта</label>
-          <textarea
-            rows={2}
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
+          <div className="profile-field-static">{form.email}</div>
         </div>
         <div className="form-row">
           <label>Роль</label>
-          <textarea
-            rows={2}
-            value={form.role}
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-          />
+          <div className="profile-field-static">{form.role}</div>
         </div>
         {error && <div style={{color: 'red', marginBottom: 10}}>{error}</div>}
         {success && <div style={{color: 'green', marginBottom: 10}}>Профіль оновлено!</div>}
         <div className="form-actions">
-          <button type="button" className="cancel-btn" onClick={() => navigate('/profile')}>
+          <button type="button" className="cancel-btn" onClick={() => navigate(-1)}>
             Скасувати
           </button>
           <button type="submit" className="submit-btn">

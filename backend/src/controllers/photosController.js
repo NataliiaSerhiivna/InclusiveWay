@@ -6,6 +6,6 @@ export const deleteLocationPhoto = async (req, res) => {
     await locationPhotoModel.delete(Number(req.params.id));
     res.status(200).send();
   } catch (error) {
-    res.status(500).send(error.meassage);
+    res.status(500).send(error.message);
   }
 };

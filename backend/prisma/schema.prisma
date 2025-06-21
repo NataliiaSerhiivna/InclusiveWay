@@ -80,7 +80,6 @@ model users {
 model location_edit_requests{
   id Int @id @default(autoincrement())
   location_id Int 
-  location_name String
   location locations @relation(fields: [location_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   
   requested_by Int

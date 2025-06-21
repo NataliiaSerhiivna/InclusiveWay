@@ -83,7 +83,7 @@ const MapComponent = ({
   const [commentText, setCommentText] = useState("");
   const [commentError, setCommentError] = useState("");
   const [commentSuccess, setCommentSuccess] = useState("");
-  const [usernamesMap, setUsernamesMap] = useState({}); // userId -> username
+  const [usernamesMap, setUsernamesMap] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -193,13 +193,9 @@ const MapComponent = ({
                           fontSize: 14,
                           color: "#334059",
                         }}
+                        onClick={() => console.log(comment)}
                       >
-                        <b>
-                          {usernamesMap[comment.userId] ||
-                            `User #${comment.userId}`}
-                          :
-                        </b>{" "}
-                        {comment.text}
+                        <b>{comment.userName}:</b> {comment.text}
                       </div>
                     ))
                   ) : (
@@ -299,6 +295,7 @@ const MapComponent = ({
                                           ...m,
                                           comments: response.comments.map(
                                             (c) => ({
+                                              ...c,
                                               userId: c.userId,
                                               text: c.content,
                                             })

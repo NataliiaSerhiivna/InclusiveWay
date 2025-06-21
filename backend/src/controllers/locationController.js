@@ -29,8 +29,6 @@ export const createLocation = async (req, res) => {
   try {
     const location = locationCreateSchema.parse(req.body);
 
-    console.log(req.userId);
-
     const createdLocation = await locationModel.create({
       name: location.name,
       address: location.address,
@@ -53,7 +51,7 @@ export const createLocation = async (req, res) => {
     location.photos.forEach(async (photo) => {
       await locationPhotoModel.create({
         location_id: createdLocation.id,
-        image_url: photo.imageURL,
+        image_url: photo.imageUrl,
         description: photo.description,
         uploaded_at: photo.uploadedAt,
       });
@@ -61,6 +59,7 @@ export const createLocation = async (req, res) => {
 
     res.status(201).send("Location added successfully");
   } catch (error) {
+    console.log(error);
     if (error instanceof zod.ZodError) {
       res.status(400).send(error.issues);
     } else {
@@ -76,7 +75,7 @@ export const getLocation = async (req, res) => {
     res.status(200).send(camelcaseKeys(location, { deep: true }));
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
   }
 };
 
@@ -90,7 +89,7 @@ export const patchLocation = async (req, res) => {
     res.status(200).send(patchedLocation);
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
   }
 };
 
@@ -99,7 +98,7 @@ export const deleteLocation = async (req, res) => {
     await locationModel.delete(Number(req.params.id));
     res.status(200).send();
   } catch (error) {
-    res.status(500).send(error.meassage);
+    res.status(500).send(error.message);
   }
 };
 
@@ -109,7 +108,7 @@ export const addLocationPhoto = async (req, res) => {
 
     const newPhoto = await locationPhotoModel.create({
       location_id: Number(req.params.id),
-      image_url: photo.imageURL,
+      image_url: photo.imageUrl,
       description: photo.description,
       uploaded_at: photo.uploadedAt,
     });
@@ -117,7 +116,7 @@ export const addLocationPhoto = async (req, res) => {
     return;
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
   }
 };
 
@@ -128,7 +127,7 @@ export const updateLocationFeatures = async (req, res) => {
     res.status(200).send();
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
   }
 };
 
@@ -144,10 +143,10 @@ export const addLocationComment = async (req, res) => {
     });
 
     res.status(200).send(newComment);
-    rerurn;
+    return;
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
     return;
   }
 };
@@ -158,7 +157,7 @@ export const deleteLocationComment = async (req, res) => {
     return;
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
     return;
   }
 };
@@ -167,7 +166,6 @@ export const getLocationComments = async (req, res) => {
     const comments = await locationCommentModel.getComments(
       Number(req.params.id)
     );
-    console.log(comments);
 
     const response = {
       comments: [],
@@ -175,13 +173,12 @@ export const getLocationComments = async (req, res) => {
 
     for (let i = 0; i < comments.length; i++) {
       const currentComment = comments.at(i);
-      console.log(currentComment);
 
       const convertedComment = {
         id: currentComment.id,
         locationId: currentComment.location_id,
         userId: currentComment.user_id,
-        userName: currentComment.users.name,
+        userName: currentComment.users.username,
         content: currentComment.content,
         createdAt: currentComment.created_at.toISOString(),
       };
@@ -193,13 +190,12 @@ export const getLocationComments = async (req, res) => {
     res.status(200).send(response);
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
   }
 };
 export const getLocations = async (req, res) => {
   try {
     const result = await locationsRetriever(req);
-
     const response = result.locations.filter(
       (lcoation) => lcoation.approved === true
     );
@@ -207,8 +203,9 @@ export const getLocations = async (req, res) => {
     res.status(200).send(response);
     return;
   } catch (error) {
+    console.log(error);
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
   }
 };
 
@@ -223,7 +220,7 @@ export const getPendingLocations = async (req, res) => {
     return;
   } catch (error) {
     if (error instanceof zod.ZodError) res.status(400).send(error.issues);
-    else res.status(500).send(error.meassage);
+    else res.status(500).send(error.message);
   }
 };
 

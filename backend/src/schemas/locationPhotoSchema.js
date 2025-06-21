@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const locationPhotoCreateSchema = z.object({
-  imageURL: z.string(),
+  imageUrl: z.string(),
   description: z.string(),
   uploadedAt: z
     .string()

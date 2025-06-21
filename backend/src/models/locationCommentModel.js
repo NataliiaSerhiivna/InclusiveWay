@@ -22,8 +22,10 @@ export default class LocationCommentModel {
       },
       include: {
         users: {
-          include: {
-            name: true,
+          select: {
+            username: true,
+            email: true,
+            role: true,
           },
         },
       },

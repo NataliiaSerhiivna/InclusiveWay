@@ -80,7 +80,7 @@ export const authenticateUser = async (req, res) => {
       res.status(200).send(user);
       return;
     } else {
-      res.status(401).send({ mesage: "Invalid credentials" });
+      res.status(402).send({ mesage: "Invalid credentials" });
       return;
     }
   } catch (error) {

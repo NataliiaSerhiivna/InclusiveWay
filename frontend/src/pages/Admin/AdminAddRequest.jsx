@@ -1,57 +1,78 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../../styles/Admin.css";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-
-const requests = [
-  {
-    id: 1,
-    author: { name: "Олена Ковальчук", email: "olena.kovalchuk@gmail.com" },
-    photo:
-      "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/c7/ff/14/the-atmosphere-light.jpg?w=900&h=500&s=1",
-    name: "Кавʼярня Lagom coffee",
-    address: "вул. Січових Стрільців, 57, Київ",
-    lat: 50.4587,
-    lng: 30.5081,
-    description: "Затишна кавʼярня зі зручностями для всіх.",
-    accessibility: ["Пандус", "Доступна вбиральня"],
-  },
-  {
-    id: 2,
-    author: { name: "Іван Петренко", email: "ivan.petrenko@gmail.com" },
-    photo: "https://rau.ua/wp-content/uploads/2021/12/dji_0935-1.jpg",
-    name: "ТРЦ Respublika Park",
-    address: "Кільцева дорога, 1, Київ",
-    lat: 50.4017,
-    lng: 30.3554,
-    description:
-      "Великий торговий центр з усіма зручностями для людей з інвалідністю.",
-    accessibility: [
-      "Пандус",
-      "Ліфт",
-      "Доступна вбиральня",
-      "Парковка для людей з інвалідністю",
-    ],
-  },
-];
-
-const allTags = [
-  "Пандус",
-  "Ліфт",
-  "Рейки для візків",
-  "Доступна вбиральня",
-  "Стіл для пеленання",
-  "Широкі двері",
-  "Кнопка виклику допомоги",
-  "Парковка для людей з інвалідністю",
-];
+import { getLocation, updateLocation, deleteLocation, getFeatures } from "../../api";
 
 export default function AdminAddRequest() {
   const { id } = useParams();
-  const req = requests.find((r) => r.id === Number(id));
+  const navigate = useNavigate();
+  const [location, setLocation] = useState(null);
+  const [allFeatures, setAllFeatures] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [approving, setApproving] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
 
-  if (!req) return <div style={{ padding: 40 }}>Заявку не знайдено</div>;
+  useEffect(() => {
+    setLoading(true);
+    setError("");
+    Promise.all([getLocation(id), getFeatures()])
+      .then(([locationData, featuresData]) => {
+        setLocation(locationData);
+        setAllFeatures(featuresData);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(e.message || "Помилка завантаження");
+        setLoading(false);
+      });
+  }, [id]);
+
+  const handleApprove = async () => {
+    try {
+      setApproving(true);
+      await updateLocation(id, { approved: true });
+      navigate("/admin-page", { state: { activeTab: "add" } });
+    } catch (e) {
+      setError(e.message || "Помилка при схваленні локації");
+    } finally {
+      setApproving(false);
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      setRejecting(true);
+      await deleteLocation(id);
+      navigate("/admin-page", { state: { activeTab: "add" } });
+    } catch (e) {
+      setError(e.message || "Помилка при видаленні локації");
+    } finally {
+      setRejecting(false);
+    }
+  };
+
+  if (loading) return <div style={{ padding: 40 }}>Завантаження...</div>;
+  if (error) return <div style={{ padding: 40, color: "red" }}>{error}</div>;
+  if (!location) return <div style={{ padding: 40 }}>Заявку не знайдено</div>;
+
+  let photo = null;
+  if (location.photos && location.photos[0]) {
+    const p = location.photos[0];
+    photo = p.imageUrl || p.imageUrl || p.image_url || p.url || null;
+  }
+
+  const lat = location.latitude;
+  const lng = location.longitude;
+
+  const accessibility = ((location.features || []).map((featureId) => {
+      if (!allFeatures) return null;
+      const feature = allFeatures.find((f) => f.id === featureId);
+      return feature ? feature.name : null;
+    })
+    .filter(Boolean));
 
   return (
     <div className="add-location-page">
@@ -61,73 +82,74 @@ export default function AdminAddRequest() {
         style={{ maxWidth: 700, marginTop: 32 }}
       >
         <div className="form-row">
-          <label>Автор</label>
-          <div>
-            {req.author.name}{" "}
-            <span style={{ fontSize: 15, marginLeft: 8 }}>
-              {req.author.email}
-            </span>
-          </div>
-        </div>
-        <div className="form-row">
           <label>Фото</label>
-          <img
-            src={req.photo}
-            alt={req.name}
-            style={{
-              width: 180,
-              height: 120,
-              objectFit: "cover",
-              borderRadius: 12,
-              boxShadow: "0 2px 8px #0001",
-            }}
-          />
+          {photo ? (
+            <img
+              src={photo}
+              alt={location.name}
+              style={{
+                width: 180,
+                height: 120,
+                objectFit: "cover",
+                borderRadius: 12,
+                boxShadow: "0 2px 8px #0001",
+              }}
+            />
+          ) : (
+            <span>Немає фото</span>
+          )}
         </div>
         <div className="form-row">
           <label>Назва</label>
-          <div>{req.name}</div>
+          <div>{location.name}</div>
         </div>
         <div className="form-row">
           <label>Адреса</label>
-          <div>{req.address}</div>
+          <div>{location.address}</div>
         </div>
         <div style={{ margin: "18px 0 28px 0" }}>
-          <MapContainer
-            center={[req.lat, req.lng]}
-            zoom={16}
-            style={{
-              width: "100%",
-              height: 220,
-              borderRadius: 12,
-              boxShadow: "0 2px 8px #0001",
-            }}
-          >
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <Marker position={[req.lat, req.lng]} />
-          </MapContainer>
+          {lat && lng && (
+            <MapContainer
+              center={[lat, lng]}
+              zoom={16}
+              style={{
+                width: "100%",
+                height: 220,
+                borderRadius: 12,
+                boxShadow: "0 2px 8px #0001",
+              }}
+            >
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <Marker position={[lat, lng]} />
+            </MapContainer>
+          )}
         </div>
         <div className="form-row">
           <label>Опис</label>
-          <div>{req.description}</div>
+          <div>{location.description}</div>
         </div>
         <div className="form-row">
           <label>Доступність</label>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-            {req.accessibility.map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  background: "#17ccff",
-                  color: "#fff",
-                  borderRadius: 12,
-                  padding: "6px 16px",
-                  fontWeight: 700,
-                  fontSize: 15,
-                }}
-              >
-                {tag}
-              </span>
-            ))}
+            {accessibility.length > 0 ? (
+              accessibility.map((tag) => (
+                <span
+                  key={tag}
+                  style={{
+                    background: "#17ccff",
+                    color: "#fff",
+                    borderRadius: 12,
+                    padding: "6px 16px",
+                    fontWeight: 700,
+                    fontSize: 15,
+                  }}
+                >
+                  {tag}
+                </span>
+              ))
+            ) : (
+              <span>Немає даних</span>
+            )}
           </div>
         </div>
       </div>
@@ -140,6 +162,8 @@ export default function AdminAddRequest() {
         }}
       >
         <button
+          onClick={handleApprove}
+          disabled={approving || rejecting}
           style={{
             background: "#00c853",
             color: "#fff",
@@ -149,13 +173,16 @@ export default function AdminAddRequest() {
             fontWeight: 700,
             minWidth: 200,
             padding: "14px 0",
-            cursor: "pointer",
+            cursor: approving || rejecting ? "default" : "pointer",
             transition: "background 0.2s",
+            opacity: approving || rejecting ? 0.7 : 1,
           }}
         >
-          Схвалити
+          {approving ? "Обробка..." : "Схвалити"}
         </button>
         <button
+          onClick={handleReject}
+          disabled={approving || rejecting}
           style={{
             background: "#ff5c45",
             color: "#fff",
@@ -165,11 +192,12 @@ export default function AdminAddRequest() {
             fontWeight: 700,
             minWidth: 200,
             padding: "14px 0",
-            cursor: "pointer",
+            cursor: approving || rejecting ? "default" : "pointer",
             transition: "background 0.2s",
+            opacity: approving || rejecting ? 0.7 : 1,
           }}
         >
-          Відхилити
+          {rejecting ? "Обробка..." : "Відхилити"}
         </button>
       </div>
     </div>

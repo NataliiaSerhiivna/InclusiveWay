@@ -13,14 +13,10 @@ export const authenticateUserToken = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await userModel.read(decoded.email);
-    if (user.role === "user") {
-      req.userId = decoded.id;
-      req.userEmail = decoded.email;
-      next();
-    } else {
-      res.status(403).send({ mesage: "Invalid token" });
-      return;
-    }
+
+    req.userId = decoded.id;
+    req.userEmail = decoded.email;
+    next();
   } catch (error) {
     res.status(500).send(error);
   }
