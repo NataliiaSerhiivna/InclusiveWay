@@ -1,3 +1,5 @@
+// Модель для роботи з фото локацій в базі даних
+
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();

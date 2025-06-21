@@ -1,3 +1,5 @@
+// Модель для роботи з запитами на редагування в базі даних
+
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 

@@ -1,3 +1,5 @@
+//  Скрипт для доавання адміна
+
 import UserModel from "../models/userModel.js";
 import { userCreateSchema } from "../schemas/userSchema.js";
 import { PrismaClient } from "@prisma/client";

@@ -1,3 +1,5 @@
+// Модель для роботи з користувачами в базі даних
+
 import { PrismaClient } from "@prisma/client";
 import { camelToSnakeCase } from "../unitilies/camelSnakeModifications.js";
 const prisma = new PrismaClient();

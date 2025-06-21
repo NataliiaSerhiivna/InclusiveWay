@@ -1,3 +1,5 @@
+// Контролер для дій, повязаних з запитом не зміну локації
+
 import zod from "zod";
 import LocationEditRequestModel from "../models/locationEditRequestModel.js";
 import LocationModel from "../models/locationModel.js";

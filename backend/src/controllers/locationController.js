@@ -1,3 +1,5 @@
+// Контролер для дій, повязаних з локаціями
+
 import LocationModel from "../models/locationModel.js";
 import LocationFeatureModel from "../models/locationFeatureModel.js";
 import LocationPhotoModel from "../models/locationPhotoModel.js";

@@ -1,3 +1,5 @@
+//  Скрипт для заповнення таблиці фіч
+
 import { PrismaClient } from "@prisma/client";
 import { featureCreateSchema } from "../schemas/featureSchema.js";
 import zod from "zod";

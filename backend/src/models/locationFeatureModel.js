@@ -1,3 +1,5 @@
+// Модель для роботи з парами локація-фіча в базі даних
+
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();

@@ -1,3 +1,5 @@
+// Конвертація обєкту локації з бази в JSON
+
 export default function fromDbToJSON(fullLocation) {
   const result = {
     id: fullLocation.id,
