@@ -1,3 +1,5 @@
+// Сторінка для перегляду профілю користувача
+
 import React, { useEffect, useState } from "react";
 import "../../styles/Profile.css";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +10,7 @@ export default function Profile({ language = "ua" }) {
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
 
+  // Об'єкт з перекладами для інтернаціоналізації.
   const translations = {
     ua: {
       title: "Профіль користувача",
@@ -29,6 +32,7 @@ export default function Profile({ language = "ua" }) {
 
   const t = translations[language];
 
+  // Завантаження даних профілю користувача
   useEffect(() => {
     getProfile()
       .then(setUser)
@@ -69,6 +73,7 @@ export default function Profile({ language = "ua" }) {
         </button>
         {t.title}
       </div>
+      {/* Інформація профілю */}
       <div className="profile-info-form add-location-form">
         {error && <div style={{ color: "red" }}>{error}</div>}
         {!user ? (

@@ -1,3 +1,5 @@
+// Компонент для відображення інтерактивної карти
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -19,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/MapComponent.css";
 import { addComment, getComments, getUsers } from "../api";
 
+// Компонент для обробки кліків на карті
 const MapClickHandler = ({ onMapClick, customPointLabel }) => {
   useMapEvents({
     click(e) {
@@ -33,6 +36,7 @@ const MapClickHandler = ({ onMapClick, customPointLabel }) => {
   return null;
 };
 
+// Компонент для відображення маршруту на карті
 const RoutingMachine = ({ waypoints }) => {
   const map = useMap();
 
@@ -58,6 +62,7 @@ const RoutingMachine = ({ waypoints }) => {
   return null;
 };
 
+// Компонент для центрування карти на заданих координатах
 function CenterMap({ center }) {
   const map = useMap();
   useEffect(() => {
@@ -68,6 +73,7 @@ function CenterMap({ center }) {
   return null;
 }
 
+// Основний компонент карти, що відображає маркери, маршрути та спливаючі вікна з інформацією про локації
 const MapComponent = ({
   markers,
   setMarkers,
@@ -87,6 +93,7 @@ const MapComponent = ({
   const [usernamesMap, setUsernamesMap] = useState({});
   const navigate = useNavigate();
 
+  // Об'єкт з перекладами для інтернаціоналізації
   const translations = {
     ua: {
       addressUnknown: "Адреса невідома",
@@ -136,7 +143,7 @@ const MapComponent = ({
 
   return (
     <MapContainer
-      center={center || [50.4501, 30.5234]}
+      center={center || [50.4501, 30.5234]} // Центр карти
       zoom={13}
       style={{ height: "100%", width: "100%" }}
     >
@@ -153,6 +160,7 @@ const MapComponent = ({
             click: () => onMarkerClick(point),
           }}
         >
+          {/* Спливаюче вікно з інформацією про локацію*/}
           <Popup>
             {point.id ? (
               <div style={{ minWidth: 220, maxWidth: 320 }}>
@@ -169,9 +177,7 @@ const MapComponent = ({
                     }}
                   />
                 )}
-                <div
-                  style={{ fontWeight: 700, fontSize: 22, marginBottom: 4 }}
-                >
+                <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 4 }}>
                   {point.label}
                 </div>
                 <div
@@ -212,6 +218,7 @@ const MapComponent = ({
                     </span>
                   )}
                 </div>
+                {/* Секція коментарів */}
                 <div style={{ marginTop: 12 }}>
                   <div
                     style={{ fontWeight: 600, fontSize: 15, marginBottom: 4 }}
@@ -379,6 +386,7 @@ const MapComponent = ({
                     </>
                   )}
                 </div>
+                {/* Кнопка для подання заявки на редагування локації*/}
                 {point && user && (
                   <button
                     className="edit-location-btn"
@@ -403,6 +411,7 @@ const MapComponent = ({
                 )}
               </div>
             ) : (
+              // Користувацька точка
               <div>
                 <div
                   style={{

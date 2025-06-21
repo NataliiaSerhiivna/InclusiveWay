@@ -1,3 +1,5 @@
+// Головний компонент веб-платформи
+
 import React, { useEffect, useState } from "react";
 import "./styles/App.css";
 import MapComponent from "./components/MapComponent";
@@ -17,6 +19,7 @@ import AdminLocationEdit from "./pages/Admin/AdminLocationEdit";
 import { authCallback, getLocations } from "./api";
 import { getFeatures } from "./api";
 
+// Ключ для зберігання JWT токена Google в localStorage
 const localhostGoogleJwtKey = "inclusive-way-google-jwt";
 
 function App() {
@@ -36,6 +39,7 @@ function App() {
 
   const navigate = useNavigate();
 
+  // Об'єкт з перекладами для інтернаціоналізації
   const translations = {
     ua: {
       logo: "InclusiveWay",
@@ -75,12 +79,14 @@ function App() {
     },
   };
 
+  // Функція для зміни мови
   const toggleLanguage = () => {
     setLanguage((prevLang) => (prevLang === "ua" ? "en" : "ua"));
   };
 
   const t = translations[language];
 
+  // Обробка сесії користувача
   useEffect(() => {
     const userSession = localStorage.getItem(localhostGoogleJwtKey);
     setUser(JSON.parse(userSession || null));
@@ -101,6 +107,7 @@ function App() {
     })();
   }, [user]);
 
+  // Фільтрація локацій
   useEffect(() => {
     getLocations({ limit: 1000 }).then((data) => {
       let locations = data?.locations || data || [];
@@ -142,17 +149,20 @@ function App() {
     });
   }, [featuresList, filters]);
 
+  // Завантаження списку характеристик
   useEffect(() => {
     getFeatures()
       .then(setFeaturesList)
       .catch(() => setFeaturesList([]));
   }, []);
 
+  // Обробник кліку по карті
   const handleMapClick = (point) => {
     const dbMarkers = markers.filter((m) => m.id);
     setMarkers([...dbMarkers, point]);
   };
 
+  // Обробник кліку по маркеру
   const handleMarkerClick = (point) => {
     if (selecting === "start") {
       setStartPoint(point);
@@ -165,6 +175,7 @@ function App() {
     }
   };
 
+  // Побудова маршруту
   const buildRoute = () => {
     if (!startPoint || !endPoint) return;
     setRoutePoints([
@@ -173,12 +184,14 @@ function App() {
     ]);
   };
 
+  // Очищення маршруту
   const clearRoute = () => {
     setStartPoint(null);
     setEndPoint(null);
     setRoutePoints([]);
   };
 
+  // Обробник зміни фільтрів
   const handleFilterChange = (id) => {
     setFilters((prev) =>
       prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
@@ -191,6 +204,7 @@ function App() {
     }
   }, [search]);
 
+  // Обробник пошуку локацій
   const handleSearch = async (e) => {
     if (e) e.preventDefault();
     const params = { searchString: search, limit: 1000 };
@@ -218,11 +232,13 @@ function App() {
 
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      {/* Налаштування маршрутизації додатку */}
       <Routes>
         <Route
           path="/"
           element={
             <>
+              {/* Хедер додатку */}
               <header className="header">
                 <div className="logo">{t.logo}</div>
                 <div className="header-btns">
@@ -237,6 +253,7 @@ function App() {
                   <button className="lang-btn" onClick={toggleLanguage}>
                     {language === "ua" ? "EN" : "UA"}
                   </button>
+                  {/* Кнопка входу через Google */}
                   {user === null && (
                     <GoogleLogin
                       onSuccess={(credentialResponse) => {
@@ -254,6 +271,7 @@ function App() {
                       }}
                     />
                   )}
+                  {/* Кнопки профілю та виходу */}
                   {user && (
                     <>
                       <button
@@ -275,8 +293,11 @@ function App() {
                   )}
                 </div>
               </header>
+              {/* Основний макет сторінки */}
               <div className="app-main-layout">
+                {/* Ліва панель з елементами керування */}
                 <div className="left-content">
+                  {/* Секція пошуку */}
                   <div className="search-section">
                     <form
                       onSubmit={handleSearch}
@@ -298,6 +319,7 @@ function App() {
                       </button>
                     </form>
                   </div>
+                  {/* Секція побудови маршруту */}
                   <div className="route-section">
                     <div className="route-title">{t.buildRouteTitle}</div>
                     <div className="route-buttons">
@@ -343,6 +365,7 @@ function App() {
                       {selecting === "end" && <div>{t.selectEndHint}</div>}
                     </div>
                   </div>
+                  {/* Секція фільтрів */}
                   <div className="filters-section">
                     <div className="filters-title">{t.filtersTitle}</div>
                     <div className="filters-grid">
@@ -359,6 +382,7 @@ function App() {
                     </div>
                   </div>
                 </div>
+                {/* Область для відображення карти */}
                 <div className="map-area">
                   <MapComponent
                     markers={markers}
@@ -380,6 +404,7 @@ function App() {
             </>
           }
         />
+        {/* Маршрути для сторінок додатку */}
         <Route
           path="/add-location-request"
           element={<AddLocation language={language} />}

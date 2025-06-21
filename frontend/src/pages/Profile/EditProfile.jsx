@@ -1,3 +1,5 @@
+// Сторінка для редагування профілю користувача
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/Profile.css";
@@ -16,6 +18,7 @@ export default function EditProfile({ language = "ua" }) {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
+  // Об'єкт з перекладами для інтернаціоналізації
   const translations = {
     ua: {
       title: "Редагування профілю користувача",
@@ -43,6 +46,7 @@ export default function EditProfile({ language = "ua" }) {
 
   const t = translations[language];
 
+  // Завантаження даних профілю користувача
   useEffect(() => {
     getProfile()
       .then((data) => {
@@ -57,11 +61,13 @@ export default function EditProfile({ language = "ua" }) {
       .catch(() => {});
   }, [t.registeredUserRole]);
 
+  // Обробник відправки форми
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess(false);
 
+    // Перевірка, чи були зміни
     if (form.name.trim() === initialName.trim()) {
       setError(t.noChanges);
       return;
@@ -69,6 +75,7 @@ export default function EditProfile({ language = "ua" }) {
 
     setLoading(true);
     try {
+      // Виклик API для оновлення профілю
       await updateProfile({ username: form.name });
       setSuccess(true);
       const updated = await getProfile();
@@ -88,6 +95,7 @@ export default function EditProfile({ language = "ua" }) {
   return (
     <div className="add-location-page">
       <div className="add-location-header">{t.title}</div>
+      {/* Форма редагування профілю */}
       <form className="add-location-form" onSubmit={handleSubmit}>
         <div className="form-row">
           <label>{t.nameLabel}</label>
@@ -105,10 +113,18 @@ export default function EditProfile({ language = "ua" }) {
           <label>{t.roleLabel}</label>
           <div className="profile-field-static">{form.role}</div>
         </div>
-        {error && <div style={{color: 'red', marginBottom: 10}}>{error}</div>}
-        {success && <div style={{color: 'green', marginBottom: 10}}>{t.successMessage}</div>}
+        {error && <div style={{ color: "red", marginBottom: 10 }}>{error}</div>}
+        {success && (
+          <div style={{ color: "green", marginBottom: 10 }}>
+            {t.successMessage}
+          </div>
+        )}
         <div className="form-actions">
-          <button type="button" className="cancel-btn" onClick={() => navigate(-1)}>
+          <button
+            type="button"
+            className="cancel-btn"
+            onClick={() => navigate(-1)}
+          >
             {t.cancelButton}
           </button>
           <button type="submit" className="submit-btn">

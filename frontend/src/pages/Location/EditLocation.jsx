@@ -1,3 +1,5 @@
+// Сторінка для подання заявки на редагування локації
+
 import React, { useState, useEffect } from "react";
 import "../../styles/Location.css";
 import {
@@ -28,6 +30,7 @@ export default function EditLocation({ language = "ua" }) {
   const id = query.get("id");
   const navigate = useNavigate();
 
+  // Об'єкт з перекладами для інтернаціоналізації.
   const translations = {
     ua: {
       title: "Заявка на редагування локації",
@@ -69,12 +72,14 @@ export default function EditLocation({ language = "ua" }) {
 
   const t = translations[language];
 
+  // Завантаження списку всіх характеристик
   useEffect(() => {
     getFeatures()
       .then(setAllFeatures)
       .catch(() => setAllFeatures([]));
   }, []);
 
+  // Завантаження даних локації
   useEffect(() => {
     if (!id) return;
 
@@ -132,9 +137,11 @@ export default function EditLocation({ language = "ua" }) {
     fetchData();
   }, [id]);
 
+  // Обробник відправки форми
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Перевірка, чи були внесені зміни
     if (initialData) {
       const arraysAreEqual = (a, b) => {
         if (a.length !== b.length) return false;
@@ -187,6 +194,7 @@ export default function EditLocation({ language = "ua" }) {
       photosToDelete: [],
     };
     try {
+      // Виклик API для створення заявки на редагування
       await addEditRequest({
         locationId: Number(id),
         comment: t.commentDefault,
@@ -216,6 +224,7 @@ export default function EditLocation({ language = "ua" }) {
   return (
     <div className="add-location-page">
       <div className="add-location-header">{t.title}</div>
+      {/* Форма редагування локації. */}
       <form className="add-location-form" onSubmit={handleSubmit}>
         <div className="form-row">
           <label>{t.photoLabel}</label>

@@ -1,3 +1,5 @@
+// Сторінка адміністратора для перегляду інформації про конкретну локацію, переходу до її редагування або видалення
+
 import React, { useEffect, useState } from "react";
 import "../../styles/Admin.css";
 import { useParams, useNavigate } from "react-router-dom";
@@ -12,6 +14,7 @@ export default function AdminLocation({ language = "ua" }) {
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
 
+  // Об'єкт з перекладами для інтернаціоналізації
   const translations = {
     ua: {
       pageTitle: "Деталі локації",
@@ -51,6 +54,7 @@ export default function AdminLocation({ language = "ua" }) {
 
   const t = translations[language];
 
+  // Завантаження даних локації
   useEffect(() => {
     setLoading(true);
     setError("");
@@ -66,6 +70,7 @@ export default function AdminLocation({ language = "ua" }) {
       });
   }, [id, t.loadError]);
 
+  // Обробник видалення локації
   const handleDelete = async () => {
     if (!window.confirm(t.deleteConfirm)) return;
     setDeleting(true);
@@ -116,6 +121,7 @@ export default function AdminLocation({ language = "ua" }) {
         </button>
         {t.pageTitle}
       </div>
+      {/* Інформація про локацію */}
       <div
         className="add-location-form"
         style={{ maxWidth: 700, marginTop: 32 }}
@@ -186,6 +192,7 @@ export default function AdminLocation({ language = "ua" }) {
         </div>
         <div className="form-row">
           <label>{t.commentsLabel}</label>
+          {/* Секція з коментарями до локації */}
           <div
             style={{
               display: "flex",

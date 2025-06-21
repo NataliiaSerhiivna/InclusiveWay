@@ -1,3 +1,5 @@
+// Головна сторінка адміністратора з панеллю для керування
+
 import React, { useState, useEffect } from "react";
 import "../../styles/Admin.css";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -10,7 +12,9 @@ import {
 
 export default function AdminPage({ language = "ua", toggleLanguage }) {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState(location.state?.activeTab || "add");
+  const [activeTab, setActiveTab] = useState(
+    location.state?.activeTab || "add"
+  );
   const navigate = useNavigate();
   const [editRoleId, setEditRoleId] = useState(null);
   const [users, setUsers] = useState([]);
@@ -20,6 +24,7 @@ export default function AdminPage({ language = "ua", toggleLanguage }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Об'єкт з перекладами для інтернаціоналізації
   const translations = {
     ua: {
       logout: "Вийти",
@@ -82,6 +87,7 @@ export default function AdminPage({ language = "ua", toggleLanguage }) {
   useEffect(() => {
     if (activeTab === "add") {
       setLoading(true);
+      // Запит на отримання заявок на додавання
       getPendingLocations({ limit: 100 })
         .then((data) => {
           const list = Array.isArray(data) ? data : data.locations || [];
@@ -97,6 +103,7 @@ export default function AdminPage({ language = "ua", toggleLanguage }) {
         });
     } else if (activeTab === "edit") {
       setLoading(true);
+      // Запит на отримання заявок на редагування
       getEditRequests({ limit: 100 })
         .then((data) => {
           setEditRequests(Array.isArray(data) ? data : data.requests || []);
@@ -110,6 +117,7 @@ export default function AdminPage({ language = "ua", toggleLanguage }) {
         });
     } else if (activeTab === "locations") {
       setLoading(true);
+      // Запит на отримання всіх локацій
       getLocations({ limit: 100 })
         .then((data) => {
           const list = Array.isArray(data) ? data : data.locations || [];
@@ -124,6 +132,7 @@ export default function AdminPage({ language = "ua", toggleLanguage }) {
         });
     } else if (activeTab === "users") {
       setLoading(true);
+      // Запит на отримання всіх користувачів
       getUsers({ limit: 100 })
         .then((data) => {
           const list = Array.isArray(data) ? data : data.users || [];
@@ -150,6 +159,7 @@ export default function AdminPage({ language = "ua", toggleLanguage }) {
       style={{ overflowY: "auto", maxHeight: "100vh" }}
     >
       <div className="admin-page">
+        {/* Header сторінки */}
         <div className="header">
           <div className="logo">InclusiveWay</div>
           <div className="header-btns">
@@ -174,6 +184,7 @@ export default function AdminPage({ language = "ua", toggleLanguage }) {
             </button>
           </div>
         </div>
+        {/* Основний контент сторінки */}
         <div
           className="admin-content"
           style={{
@@ -182,6 +193,7 @@ export default function AdminPage({ language = "ua", toggleLanguage }) {
             padding: 24,
           }}
         >
+          {/* Навігація по вкладках */}
           <div style={{ display: "flex", gap: 16, marginBottom: 32 }}>
             <button
               className={`admin-tab-btn${activeTab === "add" ? " active" : ""}`}

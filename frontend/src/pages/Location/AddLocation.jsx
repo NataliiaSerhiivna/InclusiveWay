@@ -1,3 +1,5 @@
+// Сторінка для подання заявки на додавання нової локації
+
 import React, { useState, useEffect } from "react";
 import "../../styles/Location.css";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
@@ -5,6 +7,7 @@ import "leaflet/dist/leaflet.css";
 import { addLocation, getFeatures } from "../../api";
 import { useNavigate } from "react-router-dom";
 
+// Допоміжний компонент для карти, що обробляє кліки для встановлення маркера
 function LocationPickerMap({ value, onChange }) {
   useMapEvents({
     click(e) {
@@ -32,6 +35,7 @@ export default function AddLocation({ language = "ua" }) {
   const [photoDescription, setPhotoDescription] = useState("");
   const navigate = useNavigate();
 
+  // Об'єкт з перекладами для інтернаціоналізації
   const translations = {
     ua: {
       title: "Заявка на додавання локації",
@@ -102,12 +106,14 @@ export default function AddLocation({ language = "ua" }) {
     }));
   };
 
+  // Обробник відправки форми
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     setSuccess(false);
 
+    // Валідація полів форми
     if (!photoURL.trim()) {
       setError(t.errorPhotoUrl);
       setLoading(false);
@@ -150,6 +156,7 @@ export default function AddLocation({ language = "ua" }) {
       userId = JSON.parse(userSession)?.id;
     } catch {}
     try {
+      // Виклик API для додавання нової локації
       const resp = await addLocation({
         name: form.name,
         address: form.address,
@@ -204,6 +211,7 @@ export default function AddLocation({ language = "ua" }) {
       style={{ overflowY: "auto", maxHeight: "100vh" }}
     >
       <div className="add-location-header">{t.title}</div>
+      {/* Форма для додавання нової локації */}
       <form className="add-location-form" onSubmit={handleSubmit}>
         <div className="form-row">
           <label>{t.photoLabel}</label>
@@ -257,6 +265,7 @@ export default function AddLocation({ language = "ua" }) {
             }
           />
         </div>
+        {/* Карта для вибору розташування */}
         <div className="form-row">
           <label>{t.locationLabel}</label>
           <button
@@ -284,7 +293,9 @@ export default function AddLocation({ language = "ua" }) {
             </MapContainer>
             <div style={{ marginTop: 8, color: "#334059", fontSize: 15 }}>
               {marker
-                ? `${t.locationSelected} ${marker[0].toFixed(5)}, ${marker[1].toFixed(5)}`
+                ? `${t.locationSelected} ${marker[0].toFixed(
+                    5
+                  )}, ${marker[1].toFixed(5)}`
                 : t.clickToSetMarker}
             </div>
           </div>

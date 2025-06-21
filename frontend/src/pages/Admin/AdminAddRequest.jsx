@@ -1,9 +1,16 @@
+// Сторінка адміністратора для перегляду, схвалення або відхилення заявок на додавання нових локацій
+
 import React, { useEffect, useState } from "react";
 import "../../styles/Admin.css";
 import { useParams, useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { getLocation, updateLocation, deleteLocation, getFeatures } from "../../api";
+import {
+  getLocation,
+  updateLocation,
+  deleteLocation,
+  getFeatures,
+} from "../../api";
 
 export default function AdminAddRequest({ language = "ua" }) {
   const { id } = useParams();
@@ -15,6 +22,7 @@ export default function AdminAddRequest({ language = "ua" }) {
   const [approving, setApproving] = useState(false);
   const [rejecting, setRejecting] = useState(false);
 
+  // Об'єкт з перекладами для інтернаціоналізації
   const translations = {
     ua: {
       loading: "Завантаження...",
@@ -56,6 +64,7 @@ export default function AdminAddRequest({ language = "ua" }) {
 
   const t = translations[language];
 
+  // Завантаження даних про локацію
   useEffect(() => {
     setLoading(true);
     setError("");
@@ -71,6 +80,7 @@ export default function AdminAddRequest({ language = "ua" }) {
       });
   }, [id, t.loadError]);
 
+  // Обробник для схвалення заявки
   const handleApprove = async () => {
     try {
       setApproving(true);
@@ -83,6 +93,7 @@ export default function AdminAddRequest({ language = "ua" }) {
     }
   };
 
+  // Обробник для відхилення заявки
   const handleReject = async () => {
     try {
       setRejecting(true);
@@ -108,12 +119,13 @@ export default function AdminAddRequest({ language = "ua" }) {
   const lat = location.latitude;
   const lng = location.longitude;
 
-  const accessibility = ((location.features || []).map((featureId) => {
+  const accessibility = (location.features || [])
+    .map((featureId) => {
       if (!allFeatures) return null;
       const feature = allFeatures.find((f) => f.id === featureId);
       return feature ? feature.name : null;
     })
-    .filter(Boolean));
+    .filter(Boolean);
 
   return (
     <div className="add-location-page">
@@ -127,7 +139,9 @@ export default function AdminAddRequest({ language = "ua" }) {
         }}
       >
         <button
-          onClick={() => navigate("/admin-page", { state: { activeTab: "add" } })}
+          onClick={() =>
+            navigate("/admin-page", { state: { activeTab: "add" } })
+          }
           style={{
             position: "absolute",
             left: "20px",
@@ -143,6 +157,7 @@ export default function AdminAddRequest({ language = "ua" }) {
         </button>
         {t.pageTitle}
       </div>
+      {/* Форма з інформацією про локацію */}
       <div
         className="add-location-form"
         style={{ maxWidth: 700, marginTop: 32 }}

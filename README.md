@@ -34,17 +34,12 @@ npm start
 ---
 
 ### Frontend Setup
+**Environment variables**  
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
 **Dependencies installation**
-
 ```bash
 cd frontend
+
 npm install
-```
-
----
-
-### Project launch:
-
-```bash
 npm run dev
 ```

@@ -1,3 +1,5 @@
+// Сторінка адміністратора для редагування локації
+
 import React, { useState, useEffect } from "react";
 import "../../styles/Admin.css";
 import { useParams, useNavigate } from "react-router-dom";
@@ -19,6 +21,7 @@ export default function AdminLocationEdit({ language = "ua" }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Об'єкт з перекладами для інтернаціоналізації
   const translations = {
     ua: {
       pageTitle: "Редагування локації",
@@ -56,6 +59,7 @@ export default function AdminLocationEdit({ language = "ua" }) {
 
   const t = translations[language];
 
+  // Завантаження даних локації
   useEffect(() => {
     setLoading(true);
     setError("");
@@ -103,10 +107,12 @@ export default function AdminLocationEdit({ language = "ua" }) {
     );
   };
 
+  // Обробник відправки форми
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
+    // Перевірка, чи були внесені зміни
     if (initialForm) {
       const arraysAreEqual = (a, b) => {
         if (a.length !== b.length) return false;
@@ -144,6 +150,7 @@ export default function AdminLocationEdit({ language = "ua" }) {
             },
           ]
         : [];
+      // Виклик API для редагування локації
       await editLocation(id, {
         name: form.name,
         address: form.address,
@@ -164,6 +171,7 @@ export default function AdminLocationEdit({ language = "ua" }) {
   return (
     <div className="add-location-page">
       <div className="add-location-header">{t.pageTitle}</div>
+      {/* Форма редагування */}
       <form
         className="add-location-form"
         style={{ maxWidth: 700, marginTop: 32 }}
@@ -223,7 +231,9 @@ export default function AdminLocationEdit({ language = "ua" }) {
           />
         </div>
         <div className="form-row">
-          <label style={{ alignSelf: "flex-start" }}>{t.accessibilityLabel}</label>
+          <label style={{ alignSelf: "flex-start" }}>
+            {t.accessibilityLabel}
+          </label>
           <div className="accessibility-checkboxes">
             {allFeatures.map((feature) => (
               <label key={feature.id}>

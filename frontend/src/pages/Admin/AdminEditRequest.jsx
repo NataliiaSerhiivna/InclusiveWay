@@ -1,3 +1,5 @@
+// Сторінка адміністратора для перегляду, схвалення або відхилення заявок на редагування існуючих локацій
+
 import React, { useEffect, useState } from "react";
 import "../../styles/Admin.css";
 import { useParams, useNavigate } from "react-router-dom";
@@ -18,6 +20,7 @@ export default function AdminEditRequest({ language = "ua" }) {
   const [features, setFeatures] = useState([]);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Об'єкт з перекладами для інтернаціоналізації
   const translations = {
     ua: {
       pageTitle: "Заявка на редагування локації",
@@ -59,6 +62,7 @@ export default function AdminEditRequest({ language = "ua" }) {
 
   const t = translations[language];
 
+  // Завантаження даних заявки
   useEffect(() => {
     Promise.all([getEditRequest(id), getFeatures()])
       .then(([data, featuresList]) => {
@@ -81,6 +85,7 @@ export default function AdminEditRequest({ language = "ua" }) {
       });
   }, [id, t.loadError, t.requestNotFound]);
 
+  // Обробник для схвалення заявки
   const handleApprove = async () => {
     setActionLoading(true);
     try {
@@ -99,6 +104,7 @@ export default function AdminEditRequest({ language = "ua" }) {
     setActionLoading(false);
   };
 
+  // Обробник для відхилення заявки
   const handleReject = async () => {
     setActionLoading(true);
     try {
@@ -136,7 +142,9 @@ export default function AdminEditRequest({ language = "ua" }) {
         }}
       >
         <button
-          onClick={() => navigate("/admin-page", { state: { activeTab: "edit" } })}
+          onClick={() =>
+            navigate("/admin-page", { state: { activeTab: "edit" } })
+          }
           style={{
             position: "absolute",
             left: "20px",
@@ -165,6 +173,7 @@ export default function AdminEditRequest({ language = "ua" }) {
             flexWrap: "wrap",
           }}
         >
+          {/* Поточні дані локації */}
           <div style={{ flex: 1, minWidth: 260 }}>
             <div
               style={{
@@ -226,6 +235,7 @@ export default function AdminEditRequest({ language = "ua" }) {
               </div>
             </div>
           </div>
+          {/* Запропоновані зміни */}
           <div style={{ flex: 1, minWidth: 260 }}>
             <div
               style={{
