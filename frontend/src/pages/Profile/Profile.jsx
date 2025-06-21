@@ -3,10 +3,31 @@ import "../../styles/Profile.css";
 import { useNavigate } from "react-router-dom";
 import { getProfile } from "../../api";
 
-export default function Profile() {
+export default function Profile({ language = "ua" }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
+
+  const translations = {
+    ua: {
+      title: "Профіль користувача",
+      loading: "Завантаження...",
+      nameLabel: "Імʼя",
+      emailLabel: "Пошта",
+      roleLabel: "Роль",
+      editProfileButton: "Редагувати профіль",
+    },
+    en: {
+      title: "User Profile",
+      loading: "Loading...",
+      nameLabel: "Name",
+      emailLabel: "Email",
+      roleLabel: "Role",
+      editProfileButton: "Edit Profile",
+    },
+  };
+
+  const t = translations[language];
 
   useEffect(() => {
     getProfile()
@@ -16,23 +37,54 @@ export default function Profile() {
 
   return (
     <div className="add-location-page">
-      <div className="add-location-header">Профіль користувача</div>
+      <div
+        className="add-location-header"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+        }}
+      >
+        <button
+          onClick={() => {
+            if (user?.role === "admin") {
+              navigate("/admin-page");
+            } else {
+              navigate("/");
+            }
+          }}
+          style={{
+            position: "absolute",
+            left: "20px",
+            background: "none",
+            border: "none",
+            fontSize: "30px",
+            cursor: "pointer",
+            padding: "0 15px",
+            color: "white",
+          }}
+        >
+          &larr;
+        </button>
+        {t.title}
+      </div>
       <div className="profile-info-form add-location-form">
         {error && <div style={{ color: "red" }}>{error}</div>}
         {!user ? (
-          <div>Завантаження...</div>
+          <div>{t.loading}</div>
         ) : (
           <>
             <div className="form-row">
-              <label>Імʼя</label>
+              <label>{t.nameLabel}</label>
               <div>{user.username || user.name || "-"}</div>
             </div>
             <div className="form-row">
-              <label>Пошта</label>
+              <label>{t.emailLabel}</label>
               <div>{user.email}</div>
             </div>
             <div className="form-row">
-              <label>Роль</label>
+              <label>{t.roleLabel}</label>
               <div>{user.role}</div>
             </div>
             <div className="form-actions">
@@ -41,7 +93,7 @@ export default function Profile() {
                 className="profile-edit-btn"
                 onClick={() => navigate("/edit-profile")}
               >
-                Редагувати профіль
+                {t.editProfileButton}
               </button>
             </div>
           </>

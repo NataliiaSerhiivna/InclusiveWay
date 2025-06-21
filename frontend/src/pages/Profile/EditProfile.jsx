@@ -4,34 +4,70 @@ import "../../styles/Profile.css";
 import { updateProfile } from "../../api";
 import { getProfile } from "../../api";
 
-export default function EditProfile() {
+export default function EditProfile({ language = "ua" }) {
   const [form, setForm] = useState({
     name: "",
     email: "",
     role: "",
   });
+  const [initialName, setInitialName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
+  const translations = {
+    ua: {
+      title: "Редагування профілю користувача",
+      nameLabel: "Імʼя",
+      emailLabel: "Пошта",
+      roleLabel: "Роль",
+      successMessage: "Профіль оновлено!",
+      cancelButton: "Скасувати",
+      submitButton: "Застосувати зміни",
+      registeredUserRole: "Зареєстрований користувач",
+      noChanges: "Ви не внесли жодних змін",
+    },
+    en: {
+      title: "Edit User Profile",
+      nameLabel: "Name",
+      emailLabel: "Email",
+      roleLabel: "Role",
+      successMessage: "Profile updated!",
+      cancelButton: "Cancel",
+      submitButton: "Apply changes",
+      registeredUserRole: "Registered user",
+      noChanges: "You haven't made any changes",
+    },
+  };
+
+  const t = translations[language];
+
   useEffect(() => {
     getProfile()
       .then((data) => {
+        const currentName = data.username || data.name || "";
         setForm({
-          name: data.username || data.name || "",
+          name: currentName,
           email: data.email || "",
-          role: data.role || "Зареєстрований користувач",
+          role: data.role || t.registeredUserRole,
         });
+        setInitialName(currentName);
       })
       .catch(() => {});
-  }, []);
+  }, [t.registeredUserRole]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
     setSuccess(false);
+
+    if (form.name.trim() === initialName.trim()) {
+      setError(t.noChanges);
+      return;
+    }
+
+    setLoading(true);
     try {
       await updateProfile({ username: form.name });
       setSuccess(true);
@@ -39,7 +75,7 @@ export default function EditProfile() {
       setForm({
         name: updated.username || updated.name || "",
         email: updated.email || "",
-        role: updated.role || "Зареєстрований користувач",
+        role: updated.role || t.registeredUserRole,
       });
       navigate(-1);
     } catch (e) {
@@ -51,10 +87,10 @@ export default function EditProfile() {
 
   return (
     <div className="add-location-page">
-      <div className="add-location-header">Редагування профілю користувача</div>
+      <div className="add-location-header">{t.title}</div>
       <form className="add-location-form" onSubmit={handleSubmit}>
         <div className="form-row">
-          <label>Імʼя</label>
+          <label>{t.nameLabel}</label>
           <textarea
             rows={1}
             value={form.name}
@@ -62,21 +98,21 @@ export default function EditProfile() {
           />
         </div>
         <div className="form-row">
-          <label>Пошта</label>
+          <label>{t.emailLabel}</label>
           <div className="profile-field-static">{form.email}</div>
         </div>
         <div className="form-row">
-          <label>Роль</label>
+          <label>{t.roleLabel}</label>
           <div className="profile-field-static">{form.role}</div>
         </div>
         {error && <div style={{color: 'red', marginBottom: 10}}>{error}</div>}
-        {success && <div style={{color: 'green', marginBottom: 10}}>Профіль оновлено!</div>}
+        {success && <div style={{color: 'green', marginBottom: 10}}>{t.successMessage}</div>}
         <div className="form-actions">
           <button type="button" className="cancel-btn" onClick={() => navigate(-1)}>
-            Скасувати
+            {t.cancelButton}
           </button>
           <button type="submit" className="submit-btn">
-            Застосувати зміни
+            {t.submitButton}
           </button>
         </div>
       </form>

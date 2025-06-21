@@ -14,7 +14,7 @@ function LocationPickerMap({ value, onChange }) {
   return value ? <Marker position={value} /> : null;
 }
 
-export default function AddLocation() {
+export default function AddLocation({ language = "ua" }) {
   const [showMap, setShowMap] = useState(false);
   const [marker, setMarker] = useState(null);
   const [form, setForm] = useState({
@@ -32,6 +32,67 @@ export default function AddLocation() {
   const [photoDescription, setPhotoDescription] = useState("");
   const navigate = useNavigate();
 
+  const translations = {
+    ua: {
+      title: "Заявка на додавання локації",
+      photoLabel: "Фото",
+      photoUrlPlaceholder: "Вставте посилання на фото",
+      photoDescriptionPlaceholder: "Опис фото",
+      nameLabel: "Назва",
+      namePlaceholder: "Введіть назву",
+      addressLabel: "Адреса",
+      addressPlaceholder: "Введіть адресу",
+      descriptionLabel: "Опис",
+      descriptionPlaceholder: "Введіть опис",
+      locationLabel: "Розташування",
+      hideMap: "Сховати",
+      addMap: "Додати",
+      locationSelected: "Вибрано:",
+      clickToSetMarker: "Клікніть по мапі, щоб поставити мітку",
+      accessibilityLabel: "Доступність",
+      cancel: "Скасувати",
+      submit: "Надіслати",
+      successMessage: "Локацію успішно додано!",
+      errorPhotoUrl: "Будь ласка, введіть посилання на фото",
+      errorPhotoDescription: "Будь ласка, введіть опис фото",
+      errorName: "Будь ласка, введіть назву",
+      errorAddress: "Будь ласка, введіть адресу",
+      errorDescription: "Будь ласка, введіть опис",
+      errorLocation: "Будь ласка, додайте розташування на мапі",
+      errorFeatures: "Будь ласка, оберіть хоча б один тег доступності",
+    },
+    en: {
+      title: "Add Location Request",
+      photoLabel: "Photo",
+      photoUrlPlaceholder: "Insert photo link",
+      photoDescriptionPlaceholder: "Photo description",
+      nameLabel: "Name",
+      namePlaceholder: "Enter name",
+      addressLabel: "Address",
+      addressPlaceholder: "Enter address",
+      descriptionLabel: "Description",
+      descriptionPlaceholder: "Enter description",
+      locationLabel: "Location",
+      hideMap: "Hide",
+      addMap: "Add",
+      locationSelected: "Selected:",
+      clickToSetMarker: "Click on the map to set a marker",
+      accessibilityLabel: "Accessibility",
+      cancel: "Cancel",
+      submit: "Submit",
+      successMessage: "Location added successfully!",
+      errorPhotoUrl: "Please enter a photo link",
+      errorPhotoDescription: "Please enter a photo description",
+      errorName: "Please enter a name",
+      errorAddress: "Please enter an address",
+      errorDescription: "Please enter a description",
+      errorLocation: "Please add a location on the map",
+      errorFeatures: "Please select at least one accessibility tag",
+    },
+  };
+
+  const t = translations[language];
+
   const handleCheckbox = (featureId) => {
     setForm((f) => ({
       ...f,
@@ -46,16 +107,43 @@ export default function AddLocation() {
     setLoading(true);
     setError("");
     setSuccess(false);
-    if (!photoURL) {
-      setError("Введіть посилання на фото");
+
+    if (!photoURL.trim()) {
+      setError(t.errorPhotoUrl);
       setLoading(false);
       return;
     }
-    if (!photoDescription || photoDescription.length < 10) {
-      setError("Опис фото має містити не менше 10 символів");
+    if (!photoDescription.trim()) {
+      setError(t.errorPhotoDescription);
       setLoading(false);
       return;
     }
+    if (!form.name.trim()) {
+      setError(t.errorName);
+      setLoading(false);
+      return;
+    }
+    if (!form.address.trim()) {
+      setError(t.errorAddress);
+      setLoading(false);
+      return;
+    }
+    if (!form.description.trim()) {
+      setError(t.errorDescription);
+      setLoading(false);
+      return;
+    }
+    if (!marker) {
+      setError(t.errorLocation);
+      setLoading(false);
+      return;
+    }
+    if (form.features.length === 0) {
+      setError(t.errorFeatures);
+      setLoading(false);
+      return;
+    }
+
     const userSession = localStorage.getItem("inclusive-way-google-jwt");
     let userId = null;
     try {
@@ -115,22 +203,22 @@ export default function AddLocation() {
       className="add-location-page"
       style={{ overflowY: "auto", maxHeight: "100vh" }}
     >
-      <div className="add-location-header">Заявка на додавання локації</div>
+      <div className="add-location-header">{t.title}</div>
       <form className="add-location-form" onSubmit={handleSubmit}>
         <div className="form-row">
-          <label>Фото</label>
+          <label>{t.photoLabel}</label>
           <div
             style={{ display: "flex", flexDirection: "column", width: "100%" }}
           >
             <input
               type="text"
-              placeholder="Вставте посилання на фото"
+              placeholder={t.photoUrlPlaceholder}
               value={photoURL}
               onChange={(e) => setPhotoURL(e.target.value)}
               style={{ width: "97%", marginBottom: 8 }}
             />
             <textarea
-              placeholder="Опис фото"
+              placeholder={t.photoDescriptionPlaceholder}
               value={photoDescription}
               onChange={(e) => setPhotoDescription(e.target.value)}
               rows={2}
@@ -139,19 +227,19 @@ export default function AddLocation() {
           </div>
         </div>
         <div className="form-row">
-          <label>Назва</label>
+          <label>{t.nameLabel}</label>
           <textarea
             rows={2}
-            placeholder="Введіть назву"
+            placeholder={t.namePlaceholder}
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
           />
         </div>
         <div className="form-row">
-          <label>Адреса</label>
+          <label>{t.addressLabel}</label>
           <textarea
             rows={2}
-            placeholder="Введіть адресу"
+            placeholder={t.addressPlaceholder}
             value={form.address}
             onChange={(e) =>
               setForm((f) => ({ ...f, address: e.target.value }))
@@ -159,10 +247,10 @@ export default function AddLocation() {
           />
         </div>
         <div className="form-row">
-          <label>Опис</label>
+          <label>{t.descriptionLabel}</label>
           <textarea
             rows={2}
-            placeholder="Введіть опис"
+            placeholder={t.descriptionPlaceholder}
             value={form.description}
             onChange={(e) =>
               setForm((f) => ({ ...f, description: e.target.value }))
@@ -170,13 +258,13 @@ export default function AddLocation() {
           />
         </div>
         <div className="form-row">
-          <label>Розташування</label>
+          <label>{t.locationLabel}</label>
           <button
             type="button"
             className="add-location-btn"
             onClick={() => setShowMap((v) => !v)}
           >
-            {showMap ? "Сховати" : "Додати"}
+            {showMap ? t.hideMap : t.addMap}
           </button>
         </div>
         {showMap && (
@@ -196,13 +284,15 @@ export default function AddLocation() {
             </MapContainer>
             <div style={{ marginTop: 8, color: "#334059", fontSize: 15 }}>
               {marker
-                ? `Вибрано: ${marker[0].toFixed(5)}, ${marker[1].toFixed(5)}`
-                : "Клікніть по мапі, щоб поставити мітку"}
+                ? `${t.locationSelected} ${marker[0].toFixed(5)}, ${marker[1].toFixed(5)}`
+                : t.clickToSetMarker}
             </div>
           </div>
         )}
         <div className="form-row">
-          <label style={{ alignSelf: "flex-start" }}>Доступність</label>
+          <label style={{ alignSelf: "flex-start" }}>
+            {t.accessibilityLabel}
+          </label>
           <div className="accessibility-checkboxes">
             {featuresList.map((f) => (
               <label key={f.id}>
@@ -219,7 +309,7 @@ export default function AddLocation() {
         {error && <div style={{ color: "red", marginBottom: 10 }}>{error}</div>}
         {success && (
           <div style={{ color: "green", marginBottom: 10 }}>
-            Локацію додано!
+            {t.successMessage}
           </div>
         )}
         <div className="form-actions">
@@ -228,10 +318,10 @@ export default function AddLocation() {
             className="cancel-btn"
             onClick={() => navigate("/")}
           >
-            Скасувати
+            {t.cancel}
           </button>
           <button type="submit" className="submit-btn">
-            Надіслати
+            {t.submit}
           </button>
         </div>
       </form>

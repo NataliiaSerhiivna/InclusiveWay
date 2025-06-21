@@ -4,7 +4,7 @@ import MapComponent from "./components/MapComponent";
 import "leaflet-routing-machine";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate, Routes, Route } from "react-router-dom";
+import { useNavigate, Routes, Route, redirect } from "react-router-dom";
 import AddLocation from "./pages/Location/AddLocation";
 import EditLocation from "./pages/Location/EditLocation";
 import Profile from "./pages/Profile/Profile";
@@ -32,13 +32,57 @@ function App() {
   const [user, setUser] = useState(undefined);
   const [featuresList, setFeaturesList] = useState([]);
   const [filters, setFilters] = useState([]);
+  const [language, setLanguage] = useState("ua");
 
   const navigate = useNavigate();
 
+  const translations = {
+    ua: {
+      logo: "InclusiveWay",
+      addLocationRequest: "Заявка на додавання локації",
+      profile: "Профіль",
+      logout: "Вийти",
+      searchPlaceholder: "Пошук...",
+      searchButton: "Знайти",
+      buildRouteTitle: "Побудова маршруту",
+      selectStart: "Обрати початок маршруту",
+      selectEnd: "Обрати кінець маршруту",
+      buildRouteButton: "Побудувати маршрут",
+      clearRoute: "Очистити",
+      startPoint: "Початок:",
+      endPoint: "Кінець:",
+      selectStartHint: "Клікніть по маркеру на карті для вибору початку",
+      selectEndHint: "Клікніть по маркеру на карті для вибору кінця",
+      filtersTitle: "Фільтри доступності",
+    },
+    en: {
+      logo: "InclusiveWay",
+      addLocationRequest: "Add location request",
+      profile: "Profile",
+      logout: "Logout",
+      searchPlaceholder: "Search...",
+      searchButton: "Find",
+      buildRouteTitle: "Route building",
+      selectStart: "Select start point",
+      selectEnd: "Select end point",
+      buildRouteButton: "Build route",
+      clearRoute: "Clear",
+      startPoint: "Start:",
+      endPoint: "End:",
+      selectStartHint: "Click on a marker on the map to select the start",
+      selectEndHint: "Click on a marker on the map to select the end",
+      filtersTitle: "Accessibility Filters",
+    },
+  };
+
+  const toggleLanguage = () => {
+    setLanguage((prevLang) => (prevLang === "ua" ? "en" : "ua"));
+  };
+
+  const t = translations[language];
+
   useEffect(() => {
     const userSession = localStorage.getItem(localhostGoogleJwtKey);
-    console.log(userSession);
-
     setUser(JSON.parse(userSession || null));
   }, []);
   useEffect(() => {
@@ -49,6 +93,9 @@ function App() {
           email: user.email,
           password: user.sub,
         });
+        if (dbUser.role === "admin" && user.redirect) {
+          navigate("/admin-page");
+        }
         setUser(dbUser);
       }
     })();
@@ -102,7 +149,8 @@ function App() {
   }, []);
 
   const handleMapClick = (point) => {
-    setMarkers([...markers, point]);
+    const dbMarkers = markers.filter((m) => m.id);
+    setMarkers([...dbMarkers, point]);
   };
 
   const handleMarkerClick = (point) => {
@@ -137,6 +185,12 @@ function App() {
     );
   };
 
+  useEffect(() => {
+    if (search === "") {
+      handleSearch();
+    }
+  }, [search]);
+
   const handleSearch = async (e) => {
     if (e) e.preventDefault();
     const params = { searchString: search, limit: 1000 };
@@ -170,17 +224,19 @@ function App() {
           element={
             <>
               <header className="header">
-                <div className="logo">InclusiveWay</div>
+                <div className="logo">{t.logo}</div>
                 <div className="header-btns">
                   {user && (
                     <button
                       className="add-location-btn"
                       onClick={() => navigate("/add-location-request")}
                     >
-                      Заявка на додавання локації
+                      {t.addLocationRequest}
                     </button>
                   )}
-                  <button className="lang-btn">UA</button>
+                  <button className="lang-btn" onClick={toggleLanguage}>
+                    {language === "ua" ? "EN" : "UA"}
+                  </button>
                   {user === null && (
                     <GoogleLogin
                       onSuccess={(credentialResponse) => {
@@ -191,7 +247,7 @@ function App() {
                           localhostGoogleJwtKey,
                           JSON.stringify(userSession)
                         );
-                        setUser(userSession);
+                        setUser({ ...userSession, redirect: true });
                       }}
                       onError={() => {
                         console.log("Login Failed");
@@ -201,19 +257,19 @@ function App() {
                   {user && (
                     <>
                       <button
+                        className="profile-btn"
+                        onClick={() => navigate("/profile")}
+                      >
+                        {t.profile}
+                      </button>
+                      <button
                         className="login-btn"
                         onClick={() => {
                           localStorage.removeItem(localhostGoogleJwtKey);
                           setUser(null);
                         }}
                       >
-                        Вийти
-                      </button>
-                      <button
-                        className="profile-btn"
-                        onClick={() => navigate("/profile")}
-                      >
-                        Профіль
+                        {t.logout}
                       </button>
                     </>
                   )}
@@ -229,7 +285,7 @@ function App() {
                       <input
                         className="search-input"
                         style={{ width: 320, minWidth: 220, maxWidth: 400 }}
-                        placeholder="Пошук..."
+                        placeholder={t.searchPlaceholder}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                       />
@@ -238,63 +294,57 @@ function App() {
                         type="submit"
                         style={{ width: 130, minWidth: 100 }}
                       >
-                        Знайти
+                        {t.searchButton}
                       </button>
                     </form>
                   </div>
                   <div className="route-section">
-                    <div className="route-title">Побудова маршруту</div>
+                    <div className="route-title">{t.buildRouteTitle}</div>
                     <div className="route-buttons">
                       <button
                         className="select-start-btn"
                         onClick={() => setSelecting("start")}
                       >
-                        Обрати початок маршруту
+                        {t.selectStart}
                       </button>
                       <button
                         className="select-end-btn"
                         onClick={() => setSelecting("end")}
                       >
-                        Обрати кінець маршруту
+                        {t.selectEnd}
                       </button>
                       <div className="route-buttons-row">
                         <button
                           className="build-route-btn"
                           onClick={buildRoute}
                         >
-                          Побудувати маршрут
+                          {t.buildRouteButton}
                         </button>
                         <button
                           className="clear-route-btn"
                           onClick={clearRoute}
                         >
-                          Очистити
+                          {t.clearRoute}
                         </button>
                       </div>
                     </div>
                     <div className="route-info">
                       {startPoint && (
                         <div>
-                          <b>Початок:</b> {startPoint.label}
+                          <b>{t.startPoint}</b> {startPoint.label}
                         </div>
                       )}
                       {endPoint && (
                         <div>
-                          <b>Кінець:</b> {endPoint.label}
+                          <b>{t.endPoint}</b> {endPoint.label}
                         </div>
                       )}
-                      {selecting === "start" && (
-                        <div>
-                          Клікніть по маркеру на карті для вибору початку
-                        </div>
-                      )}
-                      {selecting === "end" && (
-                        <div>Клікніть по маркеру на карті для вибору кінця</div>
-                      )}
+                      {selecting === "start" && <div>{t.selectStartHint}</div>}
+                      {selecting === "end" && <div>{t.selectEndHint}</div>}
                     </div>
                   </div>
                   <div className="filters-section">
-                    <div className="filters-title">Фільтри доступності</div>
+                    <div className="filters-title">{t.filtersTitle}</div>
                     <div className="filters-grid">
                       {featuresList.map((f) => (
                         <label className="filter-checkbox" key={f.id}>
@@ -323,23 +373,47 @@ function App() {
                     onMarkerClick={handleMarkerClick}
                     user={user}
                     center={mapCenter}
+                    language={language}
                   />
                 </div>
               </div>
             </>
           }
         />
-        <Route path="/add-location-request" element={<AddLocation />} />
-        <Route path="/edit-location-request" element={<EditLocation />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/edit-profile" element={<EditProfile />} />
-        <Route path="/admin-page" element={<AdminPage />} />
-        <Route path="/admin-add-request/:id" element={<AdminAddRequest />} />
-        <Route path="/admin-edit-request/:id" element={<AdminEditRequest />} />
-        <Route path="/admin-location/:id" element={<AdminLocation />} />
+        <Route
+          path="/add-location-request"
+          element={<AddLocation language={language} />}
+        />
+        <Route
+          path="/edit-location-request"
+          element={<EditLocation language={language} />}
+        />
+        <Route path="/profile" element={<Profile language={language} />} />
+        <Route
+          path="/edit-profile"
+          element={<EditProfile language={language} />}
+        />
+        <Route
+          path="/admin-page"
+          element={
+            <AdminPage language={language} toggleLanguage={toggleLanguage} />
+          }
+        />
+        <Route
+          path="/admin-add-request/:id"
+          element={<AdminAddRequest language={language} />}
+        />
+        <Route
+          path="/admin-edit-request/:id"
+          element={<AdminEditRequest language={language} />}
+        />
+        <Route
+          path="/admin-location/:id"
+          element={<AdminLocation language={language} />}
+        />
         <Route
           path="/admin-location/:id/edit"
-          element={<AdminLocationEdit />}
+          element={<AdminLocationEdit language={language} />}
         />
       </Routes>
     </GoogleOAuthProvider>

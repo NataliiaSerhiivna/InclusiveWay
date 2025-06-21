@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/Location.css";
-import { getEditRequest, getLocation, addEditRequest, getFeatures } from "../../api";
+import {
+  getEditRequest,
+  getLocation,
+  addEditRequest,
+  getFeatures,
+} from "../../api";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const useQuery = () => new URLSearchParams(useLocation().search);
 
-export default function EditLocation() {
+export default function EditLocation({ language = "ua" }) {
   const [form, setForm] = useState({
     name: "",
     address: "",
@@ -13,6 +18,7 @@ export default function EditLocation() {
     features: [],
     photo: null,
   });
+  const [initialData, setInitialData] = useState(null);
   const [allFeatures, setAllFeatures] = useState([]);
   const [photoURL, setPhotoURL] = useState("");
   const [photoDescription, setPhotoDescription] = useState("");
@@ -22,69 +28,145 @@ export default function EditLocation() {
   const id = query.get("id");
   const navigate = useNavigate();
 
+  const translations = {
+    ua: {
+      title: "Заявка на редагування локації",
+      photoLabel: "Фото",
+      photoUrlPlaceholder: "Вставте посилання на фото",
+      photoDescriptionPlaceholder: "Опис фото",
+      nameLabel: "Назва",
+      addressLabel: "Адреса",
+      descriptionLabel: "Опис",
+      accessibilityLabel: "Доступність",
+      cancel: "Скасувати",
+      submit: "Надіслати",
+      alertNameAddress: "Назва та адреса не можуть бути порожніми",
+      alertDescription: "Опис має містити не менше 10 символів",
+      alertFeatures: "Оберіть хоча б одну опцію доступності",
+      alertError: "Помилка при створенні заявки",
+      commentDefault: "Заявка на редагування локації",
+      noChanges: "Ви не внесли жодних змін",
+    },
+    en: {
+      title: "Edit Location Request",
+      photoLabel: "Photo",
+      photoUrlPlaceholder: "Insert photo link",
+      photoDescriptionPlaceholder: "Photo description",
+      nameLabel: "Name",
+      addressLabel: "Address",
+      descriptionLabel: "Description",
+      accessibilityLabel: "Accessibility",
+      cancel: "Cancel",
+      submit: "Submit",
+      alertNameAddress: "Name and address cannot be empty",
+      alertDescription: "Description must be at least 10 characters long",
+      alertFeatures: "Please select at least one accessibility option",
+      alertError: "Error creating request",
+      commentDefault: "Location edit request",
+      noChanges: "You haven't made any changes",
+    },
+  };
+
+  const t = translations[language];
+
   useEffect(() => {
-    getFeatures().then(setAllFeatures).catch(() => setAllFeatures([]));
+    getFeatures()
+      .then(setAllFeatures)
+      .catch(() => setAllFeatures([]));
   }, []);
 
   useEffect(() => {
     if (!id) return;
-    getLocation(id)
-      .then((data) => {
-        setForm((f) => ({
-          ...f,
-          name: data.name || "",
-          address: data.address || "",
-          description: data.description || "",
-          features: data.features || [],
-        }));
-        if (data.photos && data.photos.length > 0) {
-          const photoObj = data.photos[0];
-          setPhotoURL(
-            photoObj.imageUrl || photoObj.imageUrl || photoObj.image_url || ""
-          );
-          setPhotoDescription(photoObj.description || "");
-        }
+
+    async function fetchData() {
+      try {
+        const locationData = await getLocation(id);
+        let pendingRequestPayload = {};
+        try {
+          const editRequest = await getEditRequest(id);
+          pendingRequestPayload = editRequest.payload;
+        } catch (e) {}
+
+        const currentPhoto =
+          locationData.photos && locationData.photos.length > 0
+            ? locationData.photos[0]
+            : {};
+        const photoFromRequest =
+          pendingRequestPayload.photosToAdd &&
+          pendingRequestPayload.photosToAdd.length > 0
+            ? pendingRequestPayload.photosToAdd[0]
+            : {};
+
+        const finalData = {
+          name: pendingRequestPayload.name || locationData.name || "",
+          address: pendingRequestPayload.address || locationData.address || "",
+          description:
+            pendingRequestPayload.description || locationData.description || "",
+          features:
+            pendingRequestPayload.features || locationData.features || [],
+          photoURL:
+            photoFromRequest.imageUrl ||
+            currentPhoto.imageUrl ||
+            currentPhoto.image_url ||
+            "",
+          photoDescription:
+            photoFromRequest.description || currentPhoto.description || "",
+        };
+
+        setForm({
+          name: finalData.name,
+          address: finalData.address,
+          description: finalData.description,
+          features: finalData.features,
+        });
+        setPhotoURL(finalData.photoURL);
+        setPhotoDescription(finalData.photoDescription);
+        setInitialData(finalData);
         setLocationLoaded(true);
-      })
-      .catch(() => setLocationLoaded(true));
+      } catch (err) {
+        console.error("Failed to load location data:", err);
+        setLocationLoaded(true);
+      }
+    }
+
+    fetchData();
   }, [id]);
-
-  useEffect(() => {
-    if (!id) return;
-    getEditRequest(id)
-      .then((data) => {
-        const payload = data.payload;
-        setForm((f) => ({
-          ...f,
-          name: payload.name || f.name,
-          address: payload.address || f.address,
-          description: payload.description || f.description,
-          features: payload.features || f.features,
-        }));
-        if (payload.photosToAdd && payload.photosToAdd.length > 0) {
-          setPhotoURL(payload.photosToAdd[0].imageUrl || photoURL);
-          setPhotoDescription(
-            payload.photosToAdd[0].description || photoDescription
-          );
-        }
-      })
-      .catch(() => {});
-  }, [id, locationLoaded]);
-
-  console.log(form);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (initialData) {
+      const arraysAreEqual = (a, b) => {
+        if (a.length !== b.length) return false;
+        const sortedA = [...a].sort();
+        const sortedB = [...b].sort();
+        return sortedA.every((val, index) => val === sortedB[index]);
+      };
+
+      const noChanges =
+        initialData.name === form.name &&
+        initialData.address === form.address &&
+        initialData.description === form.description &&
+        arraysAreEqual(initialData.features, form.features) &&
+        initialData.photoURL === photoURL &&
+        initialData.photoDescription === photoDescription;
+
+      if (noChanges) {
+        alert(t.noChanges);
+        return;
+      }
+    }
+
     if (!form.name || !form.address) {
-      alert("Назва та адреса не можуть бути порожніми");
+      alert(t.alertNameAddress);
       return;
     }
     if (!form.description || form.description.length < 10) {
-      alert("Опис має містити не менше 10 символів");
+      alert(t.alertDescription);
       return;
     }
     if (form.features.length === 0) {
-      alert("Оберіть хоча б одну опцію доступності");
+      alert(t.alertFeatures);
       return;
     }
     const photosToAdd = photoURL
@@ -107,7 +189,7 @@ export default function EditLocation() {
     try {
       await addEditRequest({
         locationId: Number(id),
-        comment: "Заявка на редагування локації",
+        comment: t.commentDefault,
         payload,
       });
       navigate(-1);
@@ -117,15 +199,15 @@ export default function EditLocation() {
       } else if (typeof e === "object") {
         alert(JSON.stringify(e, null, 2));
       } else {
-        alert(e || "Помилка при створенні заявки");
+        alert(e || t.alertError);
       }
     }
   };
 
   const handleFeatureChange = (featureId) => {
-    setForm(prevForm => {
+    setForm((prevForm) => {
       const features = prevForm.features.includes(featureId)
-        ? prevForm.features.filter(id => id !== featureId)
+        ? prevForm.features.filter((id) => id !== featureId)
         : [...prevForm.features, featureId];
       return { ...prevForm, features };
     });
@@ -133,22 +215,22 @@ export default function EditLocation() {
 
   return (
     <div className="add-location-page">
-      <div className="add-location-header">Заявка на редагування локації</div>
+      <div className="add-location-header">{t.title}</div>
       <form className="add-location-form" onSubmit={handleSubmit}>
         <div className="form-row">
-          <label>Фото</label>
+          <label>{t.photoLabel}</label>
           <div
             style={{ display: "flex", flexDirection: "column", width: "100%" }}
           >
             <input
               type="text"
-              placeholder=""
+              placeholder={t.photoUrlPlaceholder}
               value={photoURL}
               onChange={(e) => setPhotoURL(e.target.value)}
               style={{ width: "97%", marginBottom: 8 }}
             />
             <textarea
-              placeholder=""
+              placeholder={t.photoDescriptionPlaceholder}
               value={photoDescription}
               onChange={(e) => setPhotoDescription(e.target.value)}
               rows={2}
@@ -157,7 +239,7 @@ export default function EditLocation() {
           </div>
         </div>
         <div className="form-row">
-          <label>Назва</label>
+          <label>{t.nameLabel}</label>
           <textarea
             rows={2}
             value={form.name}
@@ -165,7 +247,7 @@ export default function EditLocation() {
           />
         </div>
         <div className="form-row">
-          <label>Адреса</label>
+          <label>{t.addressLabel}</label>
           <textarea
             rows={2}
             value={form.address}
@@ -173,7 +255,7 @@ export default function EditLocation() {
           />
         </div>
         <div className="form-row">
-          <label>Опис</label>
+          <label>{t.descriptionLabel}</label>
           <textarea
             rows={2}
             value={form.description}
@@ -181,9 +263,11 @@ export default function EditLocation() {
           />
         </div>
         <div className="form-row">
-          <label style={{ alignSelf: "flex-start" }}>Доступність</label>
+          <label style={{ alignSelf: "flex-start" }}>
+            {t.accessibilityLabel}
+          </label>
           <div className="accessibility-checkboxes">
-            {allFeatures.map(feature => (
+            {allFeatures.map((feature) => (
               <label key={feature.id}>
                 <input
                   type="checkbox"
@@ -201,10 +285,10 @@ export default function EditLocation() {
             className="cancel-btn"
             onClick={() => navigate("/")}
           >
-            Скасувати
+            {t.cancel}
           </button>
           <button type="submit" className="submit-btn">
-            Надіслати
+            {t.submit}
           </button>
         </div>
       </form>

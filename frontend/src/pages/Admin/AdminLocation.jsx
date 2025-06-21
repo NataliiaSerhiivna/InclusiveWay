@@ -3,7 +3,7 @@ import "../../styles/Admin.css";
 import { useParams, useNavigate } from "react-router-dom";
 import { getLocation, deleteLocation, getFeatures } from "../../api";
 
-export default function AdminLocation() {
+export default function AdminLocation({ language = "ua" }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [location, setLocation] = useState(null);
@@ -11,6 +11,45 @@ export default function AdminLocation() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
+
+  const translations = {
+    ua: {
+      pageTitle: "Деталі локації",
+      loading: "Завантаження...",
+      loadError: "Помилка завантаження локації",
+      notFound: "Локацію не знайдено",
+      deleteConfirm: "Ви впевнені, що хочете видалити цю локацію?",
+      deleteError: "Помилка видалення локації",
+      nameLabel: "Назва",
+      addressLabel: "Адреса",
+      descriptionLabel: "Опис",
+      accessibilityLabel: "Доступність",
+      commentsLabel: "Коментарі",
+      noComments: "Коментарів ще немає",
+      editButton: "Редагувати",
+      deleteButton: "Видалити",
+      deletingButton: "Видалення...",
+    },
+    en: {
+      pageTitle: "Location Details",
+      loading: "Loading...",
+      loadError: "Error loading location",
+      notFound: "Location not found",
+      deleteConfirm: "Are you sure you want to delete this location?",
+      deleteError: "Error deleting location",
+      nameLabel: "Name",
+      addressLabel: "Address",
+      descriptionLabel: "Description",
+      accessibilityLabel: "Accessibility",
+      commentsLabel: "Comments",
+      noComments: "No comments yet",
+      editButton: "Edit",
+      deleteButton: "Delete",
+      deletingButton: "Deleting...",
+    },
+  };
+
+  const t = translations[language];
 
   useEffect(() => {
     setLoading(true);
@@ -22,30 +61,61 @@ export default function AdminLocation() {
         setLoading(false);
       })
       .catch((e) => {
-        setError(e.message || "Помилка завантаження локації");
+        setError(e.message || t.loadError);
         setLoading(false);
       });
-  }, [id]);
+  }, [id, t.loadError]);
 
   const handleDelete = async () => {
-    if (!window.confirm("Ви впевнені, що хочете видалити цю локацію?")) return;
+    if (!window.confirm(t.deleteConfirm)) return;
     setDeleting(true);
     setError("");
     try {
       await deleteLocation(id);
       navigate("/admin-page");
     } catch (e) {
-      setError(e.message || "Помилка видалення локації");
+      setError(e.message || t.deleteError);
     }
     setDeleting(false);
   };
 
-  if (loading) return <div style={{ padding: 40 }}>Завантаження...</div>;
+  if (loading) return <div style={{ padding: 40 }}>{t.loading}</div>;
   if (error) return <div style={{ padding: 40, color: "red" }}>{error}</div>;
-  if (!location) return <div style={{ padding: 40 }}>Локацію не знайдено</div>;
+  if (!location) return <div style={{ padding: 40 }}>{t.notFound}</div>;
 
   return (
-    <div className="add-location-page" style={{ overflowY: "auto", height: "calc(100vh - 100px)" }}>
+    <div
+      className="add-location-page"
+      style={{ overflowY: "auto", height: "calc(100vh - 100px)" }}
+    >
+      <div
+        className="add-location-header"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+        }}
+      >
+        <button
+          onClick={() =>
+            navigate("/admin-page", { state: { activeTab: "locations" } })
+          }
+          style={{
+            position: "absolute",
+            left: "20px",
+            background: "none",
+            border: "none",
+            fontSize: "30px",
+            cursor: "pointer",
+            padding: "0 15px",
+            color: "white",
+          }}
+        >
+          &larr;
+        </button>
+        {t.pageTitle}
+      </div>
       <div
         className="add-location-form"
         style={{ maxWidth: 700, marginTop: 32 }}
@@ -76,19 +146,19 @@ export default function AdminLocation() {
           })()}
         </div>
         <div className="form-row" style={{ marginBottom: 10 }}>
-          <label>Назва</label>
+          <label>{t.nameLabel}</label>
           <div>{location.name}</div>
         </div>
         <div className="form-row" style={{ marginBottom: 10 }}>
-          <label>Адреса</label>
+          <label>{t.addressLabel}</label>
           <div>{location.address}</div>
         </div>
         <div className="form-row" style={{ marginBottom: 18 }}>
-          <label>Опис</label>
+          <label>{t.descriptionLabel}</label>
           <div>{location.description}</div>
         </div>
         <div className="form-row" style={{ marginBottom: 24 }}>
-          <label>Доступність</label>
+          <label>{t.accessibilityLabel}</label>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
             {(location.features || [])
               .map((featureId) => {
@@ -115,7 +185,7 @@ export default function AdminLocation() {
           </div>
         </div>
         <div className="form-row">
-          <label>Коментарі</label>
+          <label>{t.commentsLabel}</label>
           <div
             style={{
               display: "flex",
@@ -140,7 +210,7 @@ export default function AdminLocation() {
                 </div>
               ))
             ) : (
-              <span style={{ color: "#888" }}>Коментарів ще немає</span>
+              <span style={{ color: "#888" }}>{t.noComments}</span>
             )}
           </div>
         </div>
@@ -167,7 +237,7 @@ export default function AdminLocation() {
             }}
             onClick={() => navigate(`/admin-location/${location.id}/edit`)}
           >
-            Редагувати
+            {t.editButton}
           </button>
           <button
             style={{
@@ -185,7 +255,7 @@ export default function AdminLocation() {
             onClick={handleDelete}
             disabled={deleting}
           >
-            {deleting ? "Видалення..." : "Видалити"}
+            {deleting ? t.deletingButton : t.deleteButton}
           </button>
         </div>
       </div>
