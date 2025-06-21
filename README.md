@@ -41,7 +41,7 @@ npm start
 ### Frontend Setup
 
 **Environment variables**  
-VITE_GOOGLE_CLIENT_ID=your_google_client_id
+VITE_GOOGLE_CLIENT_ID=424529782939-3186g0h2p05erct1oof34jnb7ko8sccj.apps.googleusercontent.com
 
 **Dependencies installation**
 
